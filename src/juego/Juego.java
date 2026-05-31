@@ -12,20 +12,23 @@ public class Juego extends InterfaceJuego {
 	private double yMapa;
 	private Image imagen; 
     private Isla[] islas;
-    private Isla p;		//personaje de prueba
+    private Princesa princesa;
+    
 	Juego(double x, double y) {
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 1000, 500);
 		this.xMapa = x;
 		this.yMapa = y;
 		this.islas = new Isla[30];
-		this.p = new Isla(500, 415, 60, 100);
 		inicializarPiso();
 		
         // Cargamos la imagen UNA SOLA VEZ al nacer el objeto.
         this.imagen = Herramientas.cargarImagen("img/fondo3.png");
 		// Inicia el juego!
 		this.entorno.iniciar();
+		
+		//iNSTANCIA DE PRINCESA
+		this.princesa = new Princesa (400 , 200, 25, 35,2.5); // (coordenada X, coordenada Y, ancho, alto, velocidad)
 	}
 	
 	// Comportamiento
@@ -43,9 +46,10 @@ public class Juego extends InterfaceJuego {
 		for (int i = 0; i < 10; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
-		}
+		} 		
+		
 	}
-    public void moverIslasIzquierda() {
+    public void moverMapaIzquierda() {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
                 this.islas[i].moverIzquierda(); // A la Isla también hay que hacerle un método que haga: this.x -= 3
@@ -54,29 +58,36 @@ public class Juego extends InterfaceJuego {
         this.xMapa-=3; //Muevo el fondo tambien
     }
 	public void tick() {
-		// Procesamiento de un instante de tiempo
+		// Control del movimiento de la Princesa-----------------------------
 		if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA)) {
 			// Si la princesa aún no llegó a la mitad, avanza ella
-	        if (this.p.getX() < 500) {
-	            this.p.moverDerecha();
+	        if (this.princesa.getX() < 500) {
+	            this.princesa.moverseDerecha();
 	        }else {
-	        	moverIslasIzquierda();
+	        	moverMapaIzquierda();
 	        }
 		}
 		if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
-			if (this.p.getX() > 0) {
-	            this.p.moverIzquierda();
+			if (this.princesa.getX() > 0) {
+	            this.princesa.moverseIzquierda();
 	        }
 		}
-		
+		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+			princesa.saltar();
+		}
+		if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+			princesa.moverseAbajo();
+		}
+		//Dibujar fondo----------------------------------------------
 		this.dibujar(this.entorno);
-		//dibujar islas
+		//dibujar islas----------------------------------------------
 		for(int i = 0; i < this.islas.length; i++) {
 			if(this.islas[i] != null) {
 				this.islas[i].dibujar(this.entorno);
 			}
 		}
-		this.p.dibujarP(this.entorno);
+		//Dibujar princesa-------------------------------------------
+		princesa.dibujarse(this.entorno);
 	}
 	
 	@SuppressWarnings("unused")
