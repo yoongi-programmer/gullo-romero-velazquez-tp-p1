@@ -69,7 +69,11 @@ public class Juego extends InterfaceJuego {
 	        if (this.princesa.getX() < 500) {
 	            this.princesa.moverseDerecha();
 	        }else {
-	        	moverMapaIzquierda();
+	        	if(this.xMapa>=0) {
+		        	moverMapaIzquierda();	        		
+	        	}else if (this.princesa.getX() < 1000){
+	        		this.princesa.moverseDerecha();
+	        	}
 	        }
 		}
 		if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
@@ -95,7 +99,6 @@ public class Juego extends InterfaceJuego {
 		princesa.dibujarse(this.entorno);
 		// Crear disparo
 		if (entorno.sePresiono(entorno.TECLA_ESPACIO) && disparo == null) {
-
 			disparo = new Disparo(
 					princesa.getX(),
 					princesa.getY(),
@@ -104,7 +107,6 @@ public class Juego extends InterfaceJuego {
 
 		// Mover disparo
 		if (disparo != null) {
-
 			disparo.mover();
 			disparo.dibujar(entorno);
 
@@ -115,7 +117,6 @@ public class Juego extends InterfaceJuego {
 
 		// Mantener mínimo 3 enemigos
 		int vivos = 0;
-
 		for (int i = 0; i < enemigo.length; i++) {
 			if (enemigo[i] != null) {
 				vivos++;
@@ -123,11 +124,8 @@ public class Juego extends InterfaceJuego {
 		}
 
 		while (vivos < 3) {
-
 			for (int i = 0; i < enemigo.length; i++) {
-
 				if (enemigo[i] == null) {
-
 					enemigo[i] = Enemigos.generarEnemigo();
 					vivos++;
 					break;
@@ -137,9 +135,7 @@ public class Juego extends InterfaceJuego {
 
 		// Dibujar enemigos
 		for (int i = 0; i < enemigo.length; i++) {
-
 			if (enemigo[i] != null) {
-
 				enemigo[i].mover();
 				enemigo[i].dibujar(entorno);
 
@@ -160,11 +156,10 @@ public class Juego extends InterfaceJuego {
 		}
 	
 	}
-	
-
+	//-------------------------------------------------MAIN
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")
-		Juego juego = new Juego(800,250);
+		Juego juego = new Juego(1000,250);
 	}
 }
