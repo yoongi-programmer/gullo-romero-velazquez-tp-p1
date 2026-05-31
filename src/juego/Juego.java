@@ -13,6 +13,8 @@ public class Juego extends InterfaceJuego {
 	private Image imagen; 
     private Isla[] islas;
     private Princesa princesa;
+	private Enemigos[] enemigo;
+	private Disparo disparo;
     
     
 	Juego(double x, double y) {
@@ -30,6 +32,7 @@ public class Juego extends InterfaceJuego {
 		
 		//iNSTANCIA DE PRINCESA
 		this.princesa = new Princesa (400 , 200, 25, 35,2.5); // (coordenada X, coordenada Y, ancho, alto, velocidad)
+		this.enemigo = new Enemigos[10];
 	}
 	// Comportamiento
     public void dibujar(Entorno e) {
@@ -49,38 +52,104 @@ public class Juego extends InterfaceJuego {
 		} 		
 		
 	}
-	public void tick() {
-		// Procesamiento de un instante de tiempo
-		this.dibujar(this.entorno);
-		//dibujar islas
-		for(int i = 0; i < this.islas.length; i++) {
-			if(this.islas[i] != null) {
-				this.islas[i].dibujar(this.entorno);
-			}
-		}
-		
-		//Dibujar princesa
-		princesa.dibujarse(this.entorno);
-		
-		//Movimiento de la princesa
-		if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
-			princesa.moverseDerecha();
-		}
-		
-		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
-			princesa.moverseIzquierda();
-		}
-		
-		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
-			princesa.saltar();
-		}
-		
-		if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
-			princesa.moverseAbajo();
-		}
-		
-	}
-	
+    public void tick() {
+
+    	// Fondo
+    	this.dibujar(this.entorno);
+
+    	// Islas
+    	for (int i = 0; i < this.islas.length; i++) {
+    		if (this.islas[i] != null) {
+    			this.islas[i].dibujar(this.entorno);
+    		}
+    	}
+
+    	// Princesa
+    	princesa.dibujarse(this.entorno);
+
+    	// Movimiento princesa
+    	if (entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+    		princesa.moverseDerecha();
+    	}
+
+    	if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+    		princesa.moverseIzquierda();
+    	}
+
+    	if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+    		princesa.saltar();
+    	}
+
+    	if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+    		princesa.moverseAbajo();
+    	}
+
+    	// Crear disparo
+    	if (entorno.sePresiono(entorno.TECLA_ESPACIO) && disparo == null) {
+
+    		disparo = new Disparo(
+    				princesa.getX(),
+    				princesa.getY(),
+    				princesa.estaMirandoDerecha());
+    	}
+
+    	// Mover disparo
+    	if (disparo != null) {
+
+    		disparo.mover();
+    		disparo.dibujar(entorno);
+
+    		if (disparo.estaFueraPantalla()) {
+    			disparo = null;
+    		}
+    	}
+
+    	// Mantener mínimo 3 enemigos
+    	int vivos = 0;
+
+    	for (int i = 0; i < enemigo.length; i++) {
+    		if (enemigo[i] != null) {
+    			vivos++;
+    		}
+    	}
+
+    	while (vivos < 3) {
+
+    		for (int i = 0; i < enemigo.length; i++) {
+
+    			if (enemigo[i] == null) {
+
+    				enemigo[i] = Enemigos.generarEnemigo();
+    				vivos++;
+    				break;
+    			}
+    		}
+    	}
+
+    	// Dibujar enemigos
+    	for (int i = 0; i < enemigo.length; i++) {
+
+    		if (enemigo[i] != null) {
+
+    			enemigo[i].mover();
+    			enemigo[i].dibujar(entorno);
+
+    			// Colisión disparo-enemigo
+    			if (disparo != null &&
+    				enemigo[i].colisionDisparoEnemigo(disparo)) {
+
+    				enemigo[i] = null;
+    				disparo = null;
+    				continue;
+    			}
+
+    			// Sale de pantalla
+    			if (enemigo[i].fueraDePantalla()) {
+    				enemigo[i] = null;
+    			}
+    		}
+    	}
+    }
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")

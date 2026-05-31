@@ -6,6 +6,7 @@ import entorno.Entorno;
 
 public class Princesa {
     private double x, y, ancho, alto, velocidad;
+    private boolean mirandoDerecha = true;
 
     //  --- Constructor ---
     public Princesa (double x, double y, double ancho, double alto, double velocidad) {
@@ -35,6 +36,10 @@ public class Princesa {
     
     public double getVelocidad() {
     	return this.velocidad;
+    }
+    
+    public boolean estaMirandoDerecha() {
+    	return mirandoDerecha;
     }
     
     //  --- Setters --- 
@@ -91,10 +96,12 @@ public class Princesa {
     //metodos
     public void moverseDerecha() {
     	this.x += this.velocidad;
+    	this.mirandoDerecha = true;
     }
     
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
+    	this.mirandoDerecha = false;
     }
     
     public void saltar() {
