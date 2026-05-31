@@ -37,9 +37,9 @@ public class Disparo {
 	}
 
 	public void dibujar(Entorno e) {
-		e.dibujarImagen(imagen, x, y, 0, 0.2);
+		e.dibujarImagen(imagen, x, y, derecha ? 0 : Math.PI, 0.2);
 	}
-
+	
 	public boolean estaFueraPantalla() {
 		return x < -50 || x > 850;
 	}
