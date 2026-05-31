@@ -1,0 +1,111 @@
+package juego;
+import java.awt.Color;
+import java.awt.color.*;
+import java.awt.geom.Rectangle2D;
+import entorno.Entorno;
+
+public class Princesa {
+    private double x, y, ancho, alto, velocidad;
+
+    //  --- Constructor ---
+    public Princesa (double x, double y, double ancho, double alto, double velocidad) {
+        this.x = x;
+        this.y = y;
+        this.ancho = ancho;
+        this.alto = alto;
+        this.velocidad = velocidad;
+    }
+
+    //  --- getters --- 
+    public double getX() {
+    	return this.x;
+    }
+    
+    public double getY() {
+    	return this.y;
+    }
+    
+    public double getancho() {
+    	return this.ancho;
+    }
+    
+    public double getAlto() {
+    	return this.ancho;
+    }
+    
+    public double getVelocidad() {
+    	return this.velocidad;
+    }
+    
+    //  --- Setters --- 
+    
+    public void setX(double x) {
+    	this.x = x;
+    }
+    
+    public void setY(double y) {
+    	this.y = y;
+    }
+    
+    public void setAncho(double ancho) {
+    	this.ancho = ancho;
+    }
+    
+    public void setAlto(double alto) {
+    	this.alto = alto;
+    }
+    
+    public void setVelocidad(double velocidad) {
+    	this.velocidad = velocidad;
+    }
+    
+    //El codigo siguiente crea un rectangulo que cubre el cuerpo de la princesa y distintos sensores en cada  lado como pequeños rectangulos
+    
+    //  --- Cuerpo de la princesa ---
+    public Rectangle2D.Double getCuerpo() {
+        return new Rectangle2D.Double(x, y, ancho, alto);
+    }
+
+    // --- SENSORES DE LOS LADOS ---
+
+    public Rectangle2D.Double getSensorAbajo() {
+        // Posicionado justo en la base, con 2 píxeles de alto
+        return new Rectangle2D.Double(x + 5, y + alto - 2, ancho - 10, 2);
+    }
+
+    public Rectangle2D.Double getSensorArriba() {
+        // Justo en el techo
+        return new Rectangle2D.Double(x + 5, y, ancho - 10, 2);
+    }
+
+    public Rectangle2D.Double getSensorIzquierda() {
+        // En el borde izquierdo, con 2 píxeles de ancho
+        return new Rectangle2D.Double(x, y + 5, 2, alto - 10);
+    }
+
+    public Rectangle2D.Double getSensorDerecha() {
+        // En el borde derecho
+        return new Rectangle2D.Double(x + ancho - 2, y + 5, 2, alto - 10);
+    }
+    
+    //metodos
+    public void moverseDerecha() {
+    	this.x += this.velocidad;
+    }
+    
+    public void moverseIzquierda() {
+    	this.x -=this.velocidad ;
+    }
+    
+    public void saltar() {
+    	this.y-=1;
+    }
+    
+    public void moverseAbajo() {
+    	this.y+=1;
+    }
+    
+    public void dibujarse (Entorno e) {
+    	e.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
+    }
+}

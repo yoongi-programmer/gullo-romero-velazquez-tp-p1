@@ -12,6 +12,8 @@ public class Juego extends InterfaceJuego {
 	private double y;
 	private Image imagen; 
     private Isla[] islas;
+    private Princesa princesa;
+    
     
 	Juego(double x, double y) {
 		// Inicializa el objeto entorno
@@ -25,6 +27,9 @@ public class Juego extends InterfaceJuego {
         this.imagen = Herramientas.cargarImagen("img/fondo3.png");
 		// Inicia el juego!
 		this.entorno.iniciar();
+		
+		//iNSTANCIA DE PRINCESA
+		this.princesa = new Princesa (50, 400, 25, 35,4);
 	}
 	// Comportamiento
     public void dibujar(Entorno e) {
@@ -41,7 +46,8 @@ public class Juego extends InterfaceJuego {
 		for (int i = 0; i < 10; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
-		}
+		} 		
+		
 	}
 	public void tick() {
 		// Procesamiento de un instante de tiempo
@@ -51,6 +57,22 @@ public class Juego extends InterfaceJuego {
 			if(this.islas[i] != null) {
 				this.islas[i].dibujar(this.entorno);
 			}
+		}
+		
+		//Dibujar princesa
+		princesa.dibujarse(this.entorno);
+		
+		//Movimiento de la princesa
+		if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+			princesa.moverseDerecha();
+		}
+		
+		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+			princesa.moverseIzquierda();
+		}
+		
+		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+			princesa.saltar();
 		}
 		
 	}
