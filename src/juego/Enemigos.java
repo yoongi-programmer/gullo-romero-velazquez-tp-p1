@@ -14,8 +14,8 @@ public class Enemigos {
 
 	private boolean vaDerecha;
 
-	private int ancho = 25;
-	private int alto = 25;
+	private int ancho = 45;
+	private int alto = 45;
 
 	private Image imagen;
 
@@ -28,7 +28,7 @@ public class Enemigos {
 
 		this.velocidad = 0.8;
 
-		this.imagen = Herramientas.cargarImagen("img/enemigo1.png");
+		this.imagen = Herramientas.cargarImagen("img/enemigo1_IZ.png");
 	}
 
 	public void mover() {
@@ -41,7 +41,7 @@ public class Enemigos {
 	}
 
 	public void dibujar(Entorno entorno) {
-		entorno.dibujarImagen(imagen, x, y, 0, 0.15);
+		entorno.dibujarImagen(imagen, x, y, 0, 2);
 	}
 
 	public boolean fueraDePantalla() {
