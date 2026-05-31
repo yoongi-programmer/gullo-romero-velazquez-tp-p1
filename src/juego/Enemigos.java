@@ -17,18 +17,34 @@ public class Enemigos {
 	private int ancho = 45;
 	private int alto = 45;
 
-	private Image imagen;
+	// Animación
+	private Image[] framesIzquierda;
+	private Image[] framesDerecha;
+
+	private int frameActual;
+	private int contadorAnimacion;
 
 	public Enemigos(double x, double y, boolean vaDerecha) {
 
 		this.x = x;
 		this.y = y;
-
 		this.vaDerecha = vaDerecha;
 
 		this.velocidad = 0.8;
 
-		this.imagen = Herramientas.cargarImagen("img/enemigo1_IZ.png");
+		framesIzquierda = new Image[3];
+		framesDerecha = new Image[3];
+
+		framesIzquierda[0] = Herramientas.cargarImagen("img/enemigo1_IZ.png");
+		framesIzquierda[1] = Herramientas.cargarImagen("img/enemigo2_IZ.png");
+		framesIzquierda[2] = Herramientas.cargarImagen("img/enemigo3_IZ.png");
+
+		framesDerecha[0] = Herramientas.cargarImagen("img/enemigo1_DE.png");
+		framesDerecha[1] = Herramientas.cargarImagen("img/enemigo2_DE.png");
+		framesDerecha[2] = Herramientas.cargarImagen("img/enemigo3_DE.png");
+
+		frameActual = 0;
+		contadorAnimacion = 0;
 	}
 
 	public void mover() {
@@ -38,10 +54,31 @@ public class Enemigos {
 		} else {
 			x -= velocidad;
 		}
+
+		// Cambiar frame cada 10 ticks
+		contadorAnimacion++;
+
+		if (contadorAnimacion >= 10) {
+			frameActual++;
+			contadorAnimacion = 0;
+
+			if (frameActual >= 3) {
+				frameActual = 0;
+			}
+		}
 	}
 
 	public void dibujar(Entorno entorno) {
-		entorno.dibujarImagen(imagen, x, y, 0, 2);
+
+		Image imagenActual;
+
+		if (vaDerecha) {
+			imagenActual = framesDerecha[frameActual];
+		} else {
+			imagenActual = framesIzquierda[frameActual];
+		}
+
+		entorno.dibujarImagen(imagenActual, x, y, 0, 2);
 	}
 
 	public boolean fueraDePantalla() {
@@ -64,12 +101,10 @@ public class Enemigos {
 
 		int y = 100 + r.nextInt(300);
 
-		// Aparece por la izquierda
 		if (r.nextBoolean()) {
 			return new Enemigos(-50, y, true);
 		}
 
-		// Aparece por la derecha
 		return new Enemigos(850, y, false);
 	}
 
