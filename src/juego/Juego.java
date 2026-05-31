@@ -8,17 +8,18 @@ import entorno.InterfaceJuego;
 public class Juego extends InterfaceJuego {
 	// El objeto Entorno que controla el tiempo y otros
 	private Entorno entorno;
-	private double x;
-	private double y;
+	private double xMapa;
+	private double yMapa;
 	private Image imagen; 
     private Isla[] islas;
-    
+    private Isla p;		//personaje de prueba
 	Juego(double x, double y) {
 		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 500);
-		this.x = x;
-		this.y = y;
+		this.entorno = new Entorno(this, "Proyecto para TP", 1000, 500);
+		this.xMapa = x;
+		this.yMapa = y;
 		this.islas = new Isla[30];
+		this.p = new Isla(500, 415, 60, 100);
 		inicializarPiso();
 		
         // Cargamos la imagen UNA SOLA VEZ al nacer el objeto.
@@ -26,25 +27,48 @@ public class Juego extends InterfaceJuego {
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
+	
 	// Comportamiento
     public void dibujar(Entorno e) {
         // Ángulo 0 significa sin rotación. Escala 1.0 es el tamaño original.
-        e.dibujarImagen(this.imagen, this.x, this.y, 0, 2); //(imagen, coordenada X, coordenada Y, ángulo, escala)
+        e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 2); //(imagen, coordenada X, coordenada Y, ángulo, escala)
     }
     
     private void inicializarPiso() {
 		// La primera isla arranca en X=100, Y=550 (bien abajo)
-		int posX = 50;
-		int anchoIsla = 100;
-		int separacion = 50; // El hueco para que la princesa caiga
+		int posX = 100;
+		int anchoIsla = 250;
+		int separacion = 100; // El hueco para que la princesa caiga
 
 		for (int i = 0; i < 10; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
 		}
 	}
+    public void moverIslasIzquierda() {
+        for (int i = 0; i < this.islas.length; i++) {
+            if (this.islas[i] != null) {
+                this.islas[i].moverIzquierda(); // A la Isla también hay que hacerle un método que haga: this.x -= 3
+            }
+        }
+        this.xMapa-=3; //Muevo el fondo tambien
+    }
 	public void tick() {
 		// Procesamiento de un instante de tiempo
+		if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA)) {
+			// Si la princesa aún no llegó a la mitad, avanza ella
+	        if (this.p.getX() < 500) {
+	            this.p.moverDerecha();
+	        }else {
+	        	moverIslasIzquierda();
+	        }
+		}
+		if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
+			if (this.p.getX() > 0) {
+	            this.p.moverIzquierda();
+	        }
+		}
+		
 		this.dibujar(this.entorno);
 		//dibujar islas
 		for(int i = 0; i < this.islas.length; i++) {
@@ -52,7 +76,7 @@ public class Juego extends InterfaceJuego {
 				this.islas[i].dibujar(this.entorno);
 			}
 		}
-		
+		this.p.dibujarP(this.entorno);
 	}
 	
 	@SuppressWarnings("unused")
