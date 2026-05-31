@@ -27,10 +27,12 @@ public class Juego extends InterfaceJuego {
 		this.entorno.iniciar(); // Inicia el juego!
 		inicializarPiso();
 	}
+	
 	//METODOS DE COMPORTAMIENTO---------------------------------------------------------------------------
     public void dibujar(Entorno e) {
         e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 2); //(imagen, coordenada X, coordenada Y, ángulo, escala)
     }
+    
     //--------------------------------------------------------------------- Mapa
     private void inicializarPiso() {
 		// La primera isla arranca en X=100, Y=550 (bien abajo)
@@ -44,6 +46,7 @@ public class Juego extends InterfaceJuego {
 		} 		
 		
 	}
+    
     public void moverMapaIzquierda() {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
@@ -52,14 +55,18 @@ public class Juego extends InterfaceJuego {
         }
         this.xMapa-=3; //Muevo el fondo tambien
     }
+    
     //--------------------------------------------------------------------- Estado interno del juego
 	public void tick() {
+		
 		// Control del movimiento de la Princesa--------------------------------
 		if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA)) {
 			// Si la princesa aún no llegó a la mitad, avanza ella
+			
 	        if (this.princesa.getX() < 500) {
 	            this.princesa.moverseDerecha();
 	        }else {
+	        	
 	        	if(this.xMapa>=0) {
 		        	moverMapaIzquierda();	        		
 	        	}else if (this.princesa.getX() < 1000){
@@ -67,14 +74,17 @@ public class Juego extends InterfaceJuego {
 	        	}
 	        }
 		}
+		
 		if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
 			if (this.princesa.getX() > 0) {
 	            this.princesa.moverseIzquierda();
 	        }
 		}
+		
 		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
 			princesa.saltar();
 		}
+		
 		if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
 			princesa.moverseAbajo();
 		}
@@ -86,15 +96,16 @@ public class Juego extends InterfaceJuego {
 					princesa.getY(),
 					princesa.estaMirandoDerecha());
 		}
+		
 		// Mover disparo
 		if (disparo != null) {
 			disparo.mover();
-			disparo.dibujar(entorno);
 
 			if (disparo.estaFueraPantalla()) {
 				disparo = null;
 			}
 		}
+		
 		// Mantener mínimo 3 enemigos
 		int vivos = 0;
 		for (int i = 0; i < enemigo.length; i++) {
@@ -115,19 +126,28 @@ public class Juego extends InterfaceJuego {
 		
 		//DIBUJAR TODO-----------------------------------------------------------
 		this.dibujar(this.entorno);		//fondo
+		
 		//----------------------------------------------- Dibujar islas
 		for(int i = 0; i < this.islas.length; i++) {
 			if(this.islas[i] != null) {
 				this.islas[i].dibujar(this.entorno);
 			}
 		}
+		
 		//----------------------------------------------- Dibujar princesa
 		princesa.dibujarse(this.entorno);
+		
+		// ---------------------------------------------- Dibujar disparo
+		if (disparo != null) {
+			disparo.dibujar(entorno);
+		}
+		
 		//----------------------------------------------- Dibujar enemigos
 		for (int i = 0; i < enemigo.length; i++) {
 			if (enemigo[i] != null) {
 				enemigo[i].mover();
 				enemigo[i].dibujar(entorno);
+				
 				// Colisión disparo-enemigo
 				if (disparo != null &&
 					enemigo[i].colisionDisparoEnemigo(disparo)) {
@@ -136,6 +156,7 @@ public class Juego extends InterfaceJuego {
 					disparo = null;
 					continue;
 				}
+				
 				// Sale de pantalla
 				if (enemigo[i].fueraDePantalla()) {
 					enemigo[i] = null;
@@ -143,6 +164,7 @@ public class Juego extends InterfaceJuego {
 			}
 		}
 	}
+	
 	//-----------------------------------------------------------------------MAIN
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
