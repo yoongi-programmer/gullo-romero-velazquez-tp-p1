@@ -98,14 +98,14 @@ public class Princesa {
     }
     
     public void saltar() {
-    	this.y-=1;
+    	this.y-= this.velocidad;
     }
     
     public void moverseAbajo() {
-    	this.y+=1;
+    	this.y+=this.velocidad;
     }
     
     public void dibujarse (Entorno e) {
-    	e.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
+    	e.dibujarRectangulo(x, y, ancho, alto, 0, Color.PINK);
     }
 }

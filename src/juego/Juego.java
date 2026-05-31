@@ -29,7 +29,7 @@ public class Juego extends InterfaceJuego {
 		this.entorno.iniciar();
 		
 		//iNSTANCIA DE PRINCESA
-		this.princesa = new Princesa (50, 400, 25, 35,4);
+		this.princesa = new Princesa (400 , 200, 25, 35,2.5); // (coordenada X, coordenada Y, ancho, alto, velocidad)
 	}
 	// Comportamiento
     public void dibujar(Entorno e) {
@@ -73,6 +73,10 @@ public class Juego extends InterfaceJuego {
 		
 		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
 			princesa.saltar();
+		}
+		
+		if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+			princesa.moverseAbajo();
 		}
 		
 	}
