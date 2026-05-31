@@ -26,7 +26,7 @@ public class Princesa {
     	return this.y;
     }
     
-    public double getancho() {
+    public double getAncho() {
     	return this.ancho;
     }
     
