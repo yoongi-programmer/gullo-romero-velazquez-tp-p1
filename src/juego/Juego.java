@@ -1,5 +1,6 @@
 package juego;
 import java.awt.Image;
+import java.util.concurrent.ThreadLocalRandom;
 import entorno.Entorno;
 import entorno.Herramientas;
 import entorno.InterfaceJuego;
@@ -26,11 +27,14 @@ public class Juego extends InterfaceJuego {
         this.imagen = Herramientas.cargarImagen("img/fondo3.png");
 		this.entorno.iniciar(); // Inicia el juego!
 		inicializarPiso();
+		generarIslasFlotantes();
 	}
+	
 	//METODOS DE COMPORTAMIENTO---------------------------------------------------------------------------
     public void dibujar(Entorno e) {
         e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 2); //(imagen, coordenada X, coordenada Y, ángulo, escala)
     }
+    
     //--------------------------------------------------------------------- Mapa
     private void inicializarPiso() {
 		int posX = 100;
@@ -44,7 +48,25 @@ public class Juego extends InterfaceJuego {
 		
 	}
     private void generarIslasFlotantes() {
-    	int x=0;
+    	int posX=500;
+    	int posYAnterior = 320;
+    	for (int i = 10; i < 30; i++) {
+        	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
+        	int variacionY = ThreadLocalRandom.current().nextInt(-100, 100);
+        	int separacionX = ThreadLocalRandom.current().nextInt(80, 120);
+        	int nuevoY = posYAnterior + variacionY;
+        	
+        	if (nuevoY < 150) {
+                nuevoY = 150;
+            }
+            if (nuevoY > 450) {
+                nuevoY = 450;
+            }
+            
+			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
+			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
+			posYAnterior = nuevoY;
+		}
     }
     public void moverMapaIzquierda() {
         for (int i = 0; i < this.islas.length; i++) {
@@ -54,14 +76,17 @@ public class Juego extends InterfaceJuego {
         }
         this.xMapa-=3; //Muevo el fondo tambien
     }
+    
     //--------------------------------------------------------------------- Estado interno del juego
-	public void tick() {
+	public void tick() {	
 		// Control del movimiento de la Princesa--------------------------------
 		if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA)) {
 			// Si la princesa aún no llegó a la mitad, avanza ella
+			
 	        if (this.princesa.getX() < 500) {
 	            this.princesa.moverseDerecha();
 	        }else {
+	        	
 	        	if(this.xMapa>=0) {
 		        	moverMapaIzquierda();	        		
 	        	}else if (this.princesa.getX() < 1000){
@@ -88,15 +113,16 @@ public class Juego extends InterfaceJuego {
 					princesa.getY(),
 					princesa.estaMirandoDerecha());
 		}
-		// Mover y dibujar disparo
+		
+		// Mover disparo
 		if (disparo != null) {
 			disparo.mover();
-			disparo.dibujar(entorno);
 
 			if (disparo.estaFueraPantalla()) {
 				disparo = null;
 			}
 		}
+		
 		// Mantener mínimo 3 enemigos
 		int vivos = 0;
 		for (int i = 0; i < enemigo.length; i++) {
@@ -116,7 +142,7 @@ public class Juego extends InterfaceJuego {
 		}
 		
 		//DIBUJAR TODO-----------------------------------------------------------
-		this.dibujar(this.entorno);		//fondo
+		this.dibujar(this.entorno);		//fondo		
 		//----------------------------------------------- Dibujar islas
 		for(int i = 0; i < this.islas.length; i++) {
 			if(this.islas[i] != null) {
@@ -125,11 +151,16 @@ public class Juego extends InterfaceJuego {
 		}
 		//----------------------------------------------- Dibujar princesa
 		princesa.dibujarse(this.entorno);
+		// ---------------------------------------------- Dibujar disparo
+		if (disparo != null) {
+			disparo.dibujar(entorno);
+		}
 		//----------------------------------------------- Dibujar enemigos
 		for (int i = 0; i < enemigo.length; i++) {
 			if (enemigo[i] != null) {
 				enemigo[i].mover();
 				enemigo[i].dibujar(entorno);
+				
 				// Colisión disparo-enemigo
 				if (disparo != null &&
 					enemigo[i].colisionDisparoEnemigo(disparo)) {
@@ -138,6 +169,7 @@ public class Juego extends InterfaceJuego {
 					disparo = null;
 					continue;
 				}
+				
 				// Sale de pantalla
 				if (enemigo[i].fueraDePantalla()) {
 					enemigo[i] = null;
@@ -145,6 +177,7 @@ public class Juego extends InterfaceJuego {
 			}
 		}
 	}
+	
 	//-----------------------------------------------------------------------MAIN
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
