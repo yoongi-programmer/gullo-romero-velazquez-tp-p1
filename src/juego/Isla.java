@@ -16,10 +16,6 @@ public class Isla {
         // Pide: x, y, ancho, alto, ángulo, color
         e.dibujarRectangulo(this.area.x, this.area.y, this.area.width, this.area.height, 0, Color.green);
     }
-	public void dibujarP(Entorno e) {
-        // Pide: x, y, ancho, alto, ángulo, color
-        e.dibujarRectangulo(this.area.x, this.area.y, this.area.width, this.area.height, 0, Color.PINK);
-    }
 	
 	public void moverDerecha() {
         this.area.x += 3; // 3 píxeles por tick (ajustá la velocidad como quieras)

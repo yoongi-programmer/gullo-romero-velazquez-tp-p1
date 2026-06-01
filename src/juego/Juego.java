@@ -33,17 +33,19 @@ public class Juego extends InterfaceJuego {
     }
     //--------------------------------------------------------------------- Mapa
     private void inicializarPiso() {
-		// La primera isla arranca en X=100, Y=550 (bien abajo)
 		int posX = 100;
 		int anchoIsla = 250;
 		int separacion = 100; // El hueco para que la princesa caiga
 
 		for (int i = 0; i < 10; i++) {
-			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);
+			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
 		} 		
 		
 	}
+    private void generarIslasFlotantes() {
+    	int x=0;
+    }
     public void moverMapaIzquierda() {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
@@ -86,7 +88,7 @@ public class Juego extends InterfaceJuego {
 					princesa.getY(),
 					princesa.estaMirandoDerecha());
 		}
-		// Mover disparo
+		// Mover y dibujar disparo
 		if (disparo != null) {
 			disparo.mover();
 			disparo.dibujar(entorno);

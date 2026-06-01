@@ -1,6 +1,5 @@
 package juego;
 import java.awt.Color;
-import java.awt.color.*;
 import java.awt.geom.Rectangle2D;
 import entorno.Entorno;
 
