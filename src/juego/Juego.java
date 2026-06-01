@@ -74,6 +74,13 @@ public class Juego extends InterfaceJuego {
                 this.islas[i].moverIzquierda();
             }
         }
+        
+        for (int i = 0; i < enemigo.length; i++) {
+            if (enemigo[i] != null) {
+                enemigo[i].moverConMapaIzquierda();
+            }
+        }
+        
         this.xMapa-=3; //Muevo el fondo tambien
     }
     
@@ -158,7 +165,7 @@ public class Juego extends InterfaceJuego {
 		//----------------------------------------------- Dibujar enemigos
 		for (int i = 0; i < enemigo.length; i++) {
 			if (enemigo[i] != null) {
-				enemigo[i].mover();
+				enemigo[i].mover(islas);
 				enemigo[i].dibujar(entorno);
 				
 				// Colisión disparo-enemigo

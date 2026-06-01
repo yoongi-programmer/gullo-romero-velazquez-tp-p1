@@ -9,12 +9,12 @@ public class Isla {
 	private Rectangle area;
 	
 	Isla(int x, int y, int ancho, int alto) {
-		this.area = new Rectangle(x,y,ancho,alto);
+		this.area = new Rectangle(x, y, ancho, alto);
 	}
 	
 	public void dibujar(Entorno e) {
         // Pide: x, y, ancho, alto, ángulo, color
-        e.dibujarRectangulo(this.area.x, this.area.y, this.area.width, this.area.height, 0, Color.green);
+        e.dibujarRectangulo(this.area.x + this.area.width/2, this.area.y + this.area.height/2, this.area.width, this.area.height, 0, Color.green);
     }
 	
 	public void moverDerecha() {
@@ -26,5 +26,8 @@ public class Isla {
 
     public double getX() {
         return this.area.x;
+    }
+    public Rectangle getArea() {
+    	return this.area;
     }
 }
