@@ -27,4 +27,13 @@ public class Isla {
     public double getX() {
         return this.area.x;
     }
+    public double getY() {
+        return this.area.y;
+    }
+    public double getAncho() {
+        return this.area.width;
+    }
+    public double getAlto() {
+        return this.area.height;
+    }
 }
