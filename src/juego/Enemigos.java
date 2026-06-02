@@ -118,16 +118,43 @@ public class Enemigos {
 		return enemigoRect.intersects(isla.getArea());
 	}
 
-	public static Enemigos generarEnemigo() {
+	public static Enemigos generarEnemigo(Isla[] islas) {
 
 		Random r = new Random();
 
-		int y = 150 + r.nextInt(300);
+		int y;
+		boolean posicionValida;
 
+		do {
+			posicionValida = true;
+
+			// Genera una altura más baja
+			y = 350 + r.nextInt(120);
+
+			for (int i = 0; i < islas.length; i++) {
+
+				if (islas[i] != null) {
+
+					Rectangle area = islas[i].getArea();
+
+					// Si la Y del enemigo cae dentro de la isla
+					if (y >= area.y - 20 &&
+						y <= area.y + area.height + 20) {
+
+						posicionValida = false;
+						break;
+					}
+				}
+			}
+
+		} while (!posicionValida);
+
+		// Izquierda
 		if (r.nextBoolean()) {
 			return new Enemigos(-50, y, true);
 		}
 
+		// Derecha
 		return new Enemigos(850, y, false);
 	}
 

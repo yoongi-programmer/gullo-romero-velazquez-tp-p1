@@ -141,7 +141,7 @@ public class Juego extends InterfaceJuego {
 		while (vivos < 3) {
 			for (int i = 0; i < enemigo.length; i++) {
 				if (enemigo[i] == null) {
-					enemigo[i] = Enemigos.generarEnemigo();
+					enemigo[i] = Enemigos.generarEnemigo(islas);
 					vivos++;
 					break;
 				}
