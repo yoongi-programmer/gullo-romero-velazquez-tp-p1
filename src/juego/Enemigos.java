@@ -12,7 +12,7 @@ public class Enemigos {
 	private double x;
 	private double y;
 	private double velocidad;
-
+	
 	private boolean vaDerecha;
 
 	private int ancho = 30;
@@ -47,35 +47,46 @@ public class Enemigos {
 		frameActual = 0;
 		contadorAnimacion = 0;
 	}
+	
+	public static Enemigos generarEnemigo(Isla[] islas) {
 
+		Random r = new Random();
+		// Elegir una isla al azar
+		Isla isla = null;
+		while (isla == null) {
+			isla = islas[r.nextInt(islas.length)];
+		}
+		// Aparece sobre la isla
+		double x = isla.getArea().x + r.nextInt(isla.getArea().width);
+		// Un poco arriba de la isla
+		double y = isla.getArea().y - 40;
+		boolean vaDerecha = r.nextBoolean();
+		return new Enemigos(x, y, vaDerecha);
+	}
+
+	
 	public void mover(Isla[] islas) {
 
-		double viejoX = x;
-
+		for (int i = 0; i < islas.length; i++) {
+			if (islas[i] != null && vaAChocar(islas[i])) {
+				// cambia de dirección
+				vaDerecha = !vaDerecha;
+				return;
+			}
+		}
 		if (vaDerecha) {
 			x += velocidad;
 		} else {
 			x -= velocidad;
 		}
-
-		for (int i = 0; i < islas.length; i++) {
-
-			if (islas[i] != null &&
-				colisionaConIsla(islas[i])) {
-
-				x = viejoX; // vuelve atrás
-				break;
-			}
-		}
-
 		// animación
 		contadorAnimacion++;
-
 		if (contadorAnimacion >= 10) {
 			frameActual = (frameActual + 1) % 3;
 			contadorAnimacion = 0;
 		}
 	}
+	
 	
 	public void moverConMapaIzquierda() {
 	    this.x -= 3;
@@ -85,32 +96,16 @@ public class Enemigos {
 	    this.x += 3;
 	}
 
-	public void dibujar(Entorno entorno) {
-
-		Image imagenActual;
-
-		if (vaDerecha) {
-			imagenActual = framesDerecha[frameActual];
-		} else {
-			imagenActual = framesIzquierda[frameActual];
-		}
-
-		entorno.dibujarImagen(imagenActual, x, y, 0, 2);
-	}
-
-	public boolean fueraDePantalla() {
-		return x < -100 || x > 900;
-	}
 
 	public boolean colisionDisparoEnemigo(Disparo disparo) {
 
 		double radioDisparo = disparo.getDiametro() / 2.0;
-
 		return disparo.getPosicionX() + radioDisparo >= this.x - ancho / 2
 				&& disparo.getPosicionX() - radioDisparo <= this.x + ancho / 2
 				&& disparo.getPosicionY() + radioDisparo >= this.y - alto / 2
 				&& disparo.getPosicionY() - radioDisparo <= this.y + alto / 2;
 	}
+	
 	
 	public boolean colisionaConIsla(Isla isla) {
 
@@ -118,46 +113,36 @@ public class Enemigos {
 		return enemigoRect.intersects(isla.getArea());
 	}
 
-	public static Enemigos generarEnemigo(Isla[] islas) {
+	
+	public boolean vaAChocar(Isla isla) {
 
-		Random r = new Random();
-
-		int y;
-		boolean posicionValida;
-
-		do {
-			posicionValida = true;
-
-			// Genera una altura más baja
-			y = 350 + r.nextInt(120);
-
-			for (int i = 0; i < islas.length; i++) {
-
-				if (islas[i] != null) {
-
-					Rectangle area = islas[i].getArea();
-
-					// Si la Y del enemigo cae dentro de la isla
-					if (y >= area.y - 20 &&
-						y <= area.y + area.height + 20) {
-
-						posicionValida = false;
-						break;
-					}
-				}
-			}
-
-		} while (!posicionValida);
-
-		// Izquierda
-		if (r.nextBoolean()) {
-			return new Enemigos(-50, y, true);
+		Rectangle futuro;
+		if (vaDerecha) {
+			futuro = new Rectangle((int)(x + velocidad - ancho/2), (int)(y - alto/2), ancho, alto);
+		} else {
+			futuro = new Rectangle((int)(x - velocidad - ancho/2), (int)(y - alto/2), ancho, alto);
 		}
+		return futuro.intersects(isla.getArea());
+	}
+	
 
-		// Derecha
-		return new Enemigos(850, y, false);
+	public void dibujar(Entorno entorno) {
+
+		Image imagenActual;
+		if (vaDerecha) {
+			imagenActual = framesDerecha[frameActual];
+		} else {
+			imagenActual = framesIzquierda[frameActual];
+		}
+		entorno.dibujarImagen(imagenActual, x, y, 0, 2);
 	}
 
+	
+	public boolean fueraDePantalla() {
+		return x < -100 || x > 900;
+	}
+
+	
 	public double getX() {
 		return x;
 	}

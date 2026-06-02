@@ -120,11 +120,10 @@ public class Juego extends InterfaceJuego {
 					princesa.getY(),
 					princesa.estaMirandoDerecha());
 		}
-		
 		// Mover disparo
 		if (disparo != null) {
 			disparo.mover();
-
+			
 			if (disparo.estaFueraPantalla()) {
 				disparo = null;
 			}
