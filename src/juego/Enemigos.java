@@ -5,6 +5,7 @@ import entorno.Herramientas;
 
 import java.awt.Image;
 import java.util.Random;
+import java.awt.Rectangle;
 
 public class Enemigos {
 
@@ -14,8 +15,8 @@ public class Enemigos {
 
 	private boolean vaDerecha;
 
-	private int ancho = 45;
-	private int alto = 45;
+	private int ancho = 30;
+	private int alto = 30;
 
 	// Animación
 	private Image[] framesIzquierda;
@@ -47,7 +48,9 @@ public class Enemigos {
 		contadorAnimacion = 0;
 	}
 
-	public void mover() {
+	public void mover(Isla[] islas) {
+
+		double viejoX = x;
 
 		if (vaDerecha) {
 			x += velocidad;
@@ -55,17 +58,31 @@ public class Enemigos {
 			x -= velocidad;
 		}
 
-		// Cambiar frame cada 10 ticks
+		for (int i = 0; i < islas.length; i++) {
+
+			if (islas[i] != null &&
+				colisionaConIsla(islas[i])) {
+
+				x = viejoX; // vuelve atrás
+				break;
+			}
+		}
+
+		// animación
 		contadorAnimacion++;
 
 		if (contadorAnimacion >= 10) {
-			frameActual++;
+			frameActual = (frameActual + 1) % 3;
 			contadorAnimacion = 0;
-
-			if (frameActual >= 3) {
-				frameActual = 0;
-			}
 		}
+	}
+	
+	public void moverConMapaIzquierda() {
+	    this.x -= 1;
+	}
+	
+	public void moverConMapaDerecha() {
+	    this.x += 1;
 	}
 
 	public void dibujar(Entorno entorno) {
@@ -94,12 +111,18 @@ public class Enemigos {
 				&& disparo.getPosicionY() + radioDisparo >= this.y - alto / 2
 				&& disparo.getPosicionY() - radioDisparo <= this.y + alto / 2;
 	}
+	
+	public boolean colisionaConIsla(Isla isla) {
+
+		Rectangle enemigoRect = new Rectangle((int)(x - ancho/2), (int)(y - alto/2), ancho, alto);
+		return enemigoRect.intersects(isla.getArea());
+	}
 
 	public static Enemigos generarEnemigo() {
 
 		Random r = new Random();
 
-		int y = 100 + r.nextInt(300);
+		int y = 150 + r.nextInt(300);
 
 		if (r.nextBoolean()) {
 			return new Enemigos(-50, y, true);

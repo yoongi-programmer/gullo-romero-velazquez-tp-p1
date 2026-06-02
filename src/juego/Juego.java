@@ -18,7 +18,7 @@ public class Juego extends InterfaceJuego {
 	private Enemigos[] enemigo;
 	private Disparo disparo;
 	boolean tocandoElPiso;
-	
+	private double direccion;
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
 		this.entorno = new Entorno(this, "Proyecto para TP", 1000, 500);
@@ -27,7 +27,7 @@ public class Juego extends InterfaceJuego {
 		this.yMapa = y;
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
-		this.princesa = new Princesa (400 , 400, 25, 35,2.5, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
+		this.princesa = new Princesa (500 , 400, 25, 35,2.5, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
         this.imagen = Herramientas.cargarImagen("img/fondo3.png");
         
 		this.entorno.iniciar(); // Inicia el juego!
@@ -64,8 +64,8 @@ public class Juego extends InterfaceJuego {
         	if (nuevoY < 150) {
                 nuevoY = 150;
             }
-            if (nuevoY > 450) {
-                nuevoY = 450;
+            if (nuevoY > 380) {
+                nuevoY = 380;
             }
             
 			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
@@ -73,19 +73,26 @@ public class Juego extends InterfaceJuego {
 			posYAnterior = nuevoY;
 		}
     }
-    public void moverMapaIzquierda() {
+    public void moverMapa(double direccion) {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
-                this.islas[i].moverIzquierda();
+                this.islas[i].moverIslas(direccion);
             }
         }
-        this.xMapa-=3; //Muevo el fondo tambien
+        
+        for (int i = 0; i < enemigo.length; i++) {
+            if (enemigo[i] != null) {
+                enemigo[i].moverConMapaIzquierda();
+            }
+        }
+        
+        this.xMapa+=direccion; //Muevo el fondo tambien
     }
     //--------------------------------------------------------------------- Estado interno del juego
 	public void tick() {	
 		if(this.princesa.getVidas()>0 && this.ganar==0) {
 			boolean tocandoElPiso = false;
-			
+			//Comprobar si está parada sobre una isla
 			for(int i = 0; i < this.islas.length; i++) {
 	            if(this.islas[i] != null) {
 	                if (this.princesa.paradaSobreIsla(this.islas[i])) {
@@ -107,15 +114,21 @@ public class Juego extends InterfaceJuego {
 		        }else {
 		        	
 		        	if(this.xMapa>=0) {
-			        	moverMapaIzquierda();	        		
+			        	moverMapa(-2);	   		//mover el mapa a la izquierda     		
 		        	}else if (this.princesa.getX() < 1000){
 		        		this.princesa.moverseDerecha();
 		        	}
 		        }
 			}
 			if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
-				if (this.princesa.getX() > 0) {
+				if (this.princesa.getX() > 500) {
 		            this.princesa.moverseIzquierda();
+		        }else {
+		        	if(this.xMapa<=1000) {
+			        	moverMapa(2);	   		//mover el mapa a la izquierda     		
+		        	}else if (this.princesa.getX() > 0){
+		        		this.princesa.moverseIzquierda();
+		        	}
 		        }
 			}
 			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && tocandoElPiso) {
@@ -124,6 +137,10 @@ public class Juego extends InterfaceJuego {
 			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) && tocandoElPiso) {
 				princesa.saltar();
 				princesa.moverseDerecha();
+			}
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) && tocandoElPiso) {
+				princesa.saltar();
+				princesa.moverseIzquierda();
 			}
 			if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
 				princesa.moverseAbajo();
@@ -143,12 +160,12 @@ public class Juego extends InterfaceJuego {
 			// Mover disparo
 			if (disparo != null) {
 				disparo.mover();
-
+				
 				if (disparo.estaFueraPantalla()) {
 					disparo = null;
 				}
 			}
-			
+		
 			// Mantener mínimo 3 enemigos
 			int vivos = 0;
 			for (int i = 0; i < enemigo.length; i++) {
@@ -156,7 +173,7 @@ public class Juego extends InterfaceJuego {
 					vivos++;
 				}
 			}
-
+	
 			while (vivos < 3) {
 				for (int i = 0; i < enemigo.length; i++) {
 					if (enemigo[i] == null) {
@@ -165,7 +182,8 @@ public class Juego extends InterfaceJuego {
 						break;
 					}
 				}
-			}	
+			}
+			
 			//DIBUJAR TODO-----------------------------------------------------------
 			this.dibujar(this.entorno);		//fondo		
 			//----------------------------------------------- Dibujar islas
@@ -183,21 +201,11 @@ public class Juego extends InterfaceJuego {
 			//----------------------------------------------- Dibujar enemigos
 			for (int i = 0; i < enemigo.length; i++) {
 				if (enemigo[i] != null) {
-					enemigo[i].mover();
+					enemigo[i].mover(islas);
 					enemigo[i].dibujar(entorno);
-					
-					// Colisión disparo-enemigo
-					if (disparo != null && enemigo[i].colisionDisparoEnemigo(disparo)) {
-						enemigo[i] = null;
-						disparo = null;
-						continue;
-					}	
-					// Sale de pantalla
-					if (enemigo[i].fueraDePantalla()) {
-						enemigo[i] = null;
-					}
 				}
 			}
+			
 			entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
 			entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
 		}else {
