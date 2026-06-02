@@ -33,7 +33,7 @@ public class Princesa {
     }
     
     public double getAlto() {
-    	return this.ancho;
+    	return this.alto;
     }
     
     public double getVelocidad() {

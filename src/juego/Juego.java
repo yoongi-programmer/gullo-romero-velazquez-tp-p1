@@ -131,26 +131,34 @@ public class Juego extends InterfaceJuego {
 		        	}
 		        }
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && tocandoElPiso) {
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('w') && tocandoElPiso) {
 				princesa.saltar();
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) && tocandoElPiso) {
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('d') && tocandoElPiso) {
 				princesa.saltar();
 				princesa.moverseDerecha();
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) && tocandoElPiso) {
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('a') && tocandoElPiso) {
 				princesa.saltar();
 				princesa.moverseIzquierda();
 			}
-			if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+			if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('s'))  {
 				princesa.moverseAbajo();
+			}
+			
+			
+			//Devuelve a la princesa a la isla si cayó al vacio
+			if (princesa.getY() > 500 ) {
+				princesa.setVidas(princesa.getVidas()-1);
+				princesa.setX(princesa.getX() - 80);
+				princesa.setY(450);
 			}
 			
 			//if(princesa.getY()>500) {
 			//	princesa.setVidas(this.princesa.getVidas()-1); //resto una vida cuando cae
 			//}
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
-			if (entorno.sePresiono(entorno.TECLA_ESPACIO) && disparo == null) {
+			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && disparo == null) {
 				disparo = new Disparo(
 						princesa.getX(),
 						princesa.getY(),
