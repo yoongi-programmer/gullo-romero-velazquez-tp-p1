@@ -41,7 +41,7 @@ public class Disparo {
 	}
 	
 	public boolean estaFueraPantalla() {
-		return x < -50 || x > 850;
+		return x < -200 || x > 1200;
 	}
 
 	public double getPosicionX() {

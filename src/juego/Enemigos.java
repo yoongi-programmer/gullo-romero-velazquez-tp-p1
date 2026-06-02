@@ -48,20 +48,24 @@ public class Enemigos {
 		contadorAnimacion = 0;
 	}
 	
-	public static Enemigos generarEnemigo(Isla[] islas) {
+	public static Enemigos generarEnemigo(Isla[] islas, Princesa princesa) {
 
-		Random r = new Random();
-		// Elegir una isla al azar
-		Isla isla = null;
-		while (isla == null) {
-			isla = islas[r.nextInt(islas.length)];
-		}
-		// Aparece sobre la isla
-		double x = isla.getArea().x + r.nextInt(isla.getArea().width);
-		// Un poco arriba de la isla
-		double y = isla.getArea().y - 40;
-		boolean vaDerecha = r.nextBoolean();
-		return new Enemigos(x, y, vaDerecha);
+	    Random r = new Random();
+	    Isla isla = null;
+
+	    while (isla == null) {
+
+	        Isla candidata = islas[r.nextInt(islas.length)];
+
+	        if (candidata != null && !princesa.paradaSobreIsla(candidata)) {
+	            isla = candidata;
+	        }
+	    }
+
+	    double x = isla.getArea().x + r.nextInt(isla.getArea().width);
+	    double y = isla.getArea().y - 30;
+
+	    return new Enemigos(x, y, r.nextBoolean());
 	}
 
 	
@@ -89,11 +93,11 @@ public class Enemigos {
 	
 	
 	public void moverConMapaIzquierda() {
-	    this.x -= 1;
+	    this.x -= 3;
 	}
 	
 	public void moverConMapaDerecha() {
-	    this.x += 1;
+	    this.x += 3;
 	}
 
 
@@ -139,7 +143,7 @@ public class Enemigos {
 
 	
 	public boolean fueraDePantalla() {
-		return x < -100 || x > 900;
+		return x < -200 || x > 1200;
 	}
 
 	
