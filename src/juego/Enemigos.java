@@ -89,11 +89,11 @@ public class Enemigos {
 	
 	
 	public void moverConMapaIzquierda() {
-	    this.x -= 3;
+	    this.x -= 1;
 	}
 	
 	public void moverConMapaDerecha() {
-	    this.x += 3;
+	    this.x += 1;
 	}
 
 
