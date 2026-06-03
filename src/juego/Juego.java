@@ -192,7 +192,7 @@ public class Juego extends InterfaceJuego {
 			while (vivos < 3) {
 				for (int i = 0; i < enemigo.length; i++) {
 					if (enemigo[i] == null) {
-						enemigo[i] = Enemigos.generarEnemigo(islas, princesa);
+						enemigo[i] = Enemigos.generarEnemigo(islas, princesa, enemigo);
 						vivos++;
 						break;
 					}
@@ -230,6 +230,13 @@ public class Juego extends InterfaceJuego {
 
 			            enemigo[i] = null;
 			            disparo = null;
+			            continue;
+			        }
+			        
+			        //COLISION PRINCSA
+			        if (enemigo[i].colisionaConPrincesa(princesa)) {
+			            princesa.setVidas(princesa.getVidas() - 1);
+			            enemigo[i] = null;
 			            continue;
 			        }
 

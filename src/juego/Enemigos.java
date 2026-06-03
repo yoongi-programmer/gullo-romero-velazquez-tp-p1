@@ -48,7 +48,7 @@ public class Enemigos {
 		contadorAnimacion = 0;
 	}
 	
-	public static Enemigos generarEnemigo(Isla[] islas, Princesa princesa) {
+	public static Enemigos generarEnemigo(Isla[] islas, Princesa princesa, Enemigos[] enemigos) {
 
 	    Random r = new Random();
 	    Isla isla = null;
@@ -64,6 +64,16 @@ public class Enemigos {
 
 	    double x = isla.getArea().x + r.nextInt(isla.getArea().width);
 	    double y = isla.getArea().y - 30;
+	    
+	    for (int i = 0; i < enemigos.length; i++) {
+
+	        if (enemigos[i] != null) {
+
+	            if (Math.abs(x - enemigos[i].getX()) < 200) {
+	                return generarEnemigo(islas, princesa, enemigos);
+	            }
+	        }
+	    }
 
 	    return new Enemigos(x, y, r.nextBoolean());
 	}
@@ -129,6 +139,13 @@ public class Enemigos {
 		return futuro.intersects(isla.getArea());
 	}
 	
+	public boolean colisionaConPrincesa(Princesa princesa) {
+
+	    return this.x + this.ancho / 2 >= princesa.getX() - princesa.getAncho() / 2
+	            && this.x - this.ancho / 2 <= princesa.getX() + princesa.getAncho() / 2
+	            && this.y + this.alto / 2 >= princesa.getY() - princesa.getAlto() / 2
+	            && this.y - this.alto / 2 <= princesa.getY() + princesa.getAlto() / 2;
+	}
 
 	public void dibujar(Entorno entorno) {
 
