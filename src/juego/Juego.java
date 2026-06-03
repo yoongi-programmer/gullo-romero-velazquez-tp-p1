@@ -18,7 +18,6 @@ public class Juego extends InterfaceJuego {
 	private Enemigos[] enemigo;
 	private Disparo disparo;
 	boolean tocandoElPiso;
-	private double direccion;
 	
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
@@ -28,7 +27,7 @@ public class Juego extends InterfaceJuego {
 		this.yMapa = y;
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
-		this.princesa = new Princesa (500 , 400, 25, 35,2.5, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
+		this.princesa = new Princesa (500 , 400, 25, 35,2, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
         this.imagen = Herramientas.cargarImagen("img/fondo3.png");
         
 		this.entorno.iniciar(); // Inicia el juego!
@@ -115,45 +114,45 @@ public class Juego extends InterfaceJuego {
 				this.princesa.moverseAbajo();
 			}
 				
-				// Control del movimiento de la Princesa----------------------------------
-				if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA)) {
-				    if (this.princesa.getX() < 500) {
-				        this.princesa.moverseDerecha();
-				    } else {
-				        if (this.xMapa >= 0) {
-				            moverMapa(-2);
-				        } else if (this.princesa.getX() < 1000) {
-				            this.princesa.moverseDerecha();
-				        }
-				    }
-				}
+			// Control del movimiento de la Princesa----------------------------------
+			if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('D')) {
+			    if (this.princesa.getX() < 500) {
+			        this.princesa.moverseDerecha();
+			    } else {
+			        if (this.xMapa >= 0) {
+			            moverMapa(-2);
+			        } else if (this.princesa.getX() < 1000) {
+			            this.princesa.moverseDerecha();
+			        }
+			    }
+			}
 
-				if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA)) {
-				    if (this.princesa.getX() > 500) {
-				        this.princesa.moverseIzquierda();
-				    } else {
-				        if (this.xMapa <= 1000) {
-				            moverMapa(2);
-				        } else if (this.princesa.getX() > 0) {
-				            this.princesa.moverseIzquierda();
-				        }
-				    }
-				}
+			if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('A')) {
+			    if (this.princesa.getX() > 500) {
+			        this.princesa.moverseIzquierda();
+			    } else {
+			        if (this.xMapa <= 1000) {
+			            moverMapa(2);
+			        } else if (this.princesa.getX() > 0) {
+			            this.princesa.moverseIzquierda();
+			        }
+			    }
+			}
 
-				if (entorno.estaPresionada(entorno.TECLA_ARRIBA)
-				        || entorno.estaPresionada('w') && tocandoElPiso) {
-				    princesa.saltar();
-				}
-			
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('d') && tocandoElPiso) {
+			if ((entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('W')) && tocandoElPiso) {
+			    princesa.saltar();
+			}
+			//correr a la derecha y saltar
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
 				princesa.saltar();
 				princesa.moverseDerecha();
 			}
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('a') && tocandoElPiso) {
+			//correr a la izquierda y saltar
+			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
 				princesa.saltar();
 				princesa.moverseIzquierda();
 			}
-			if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('s'))  {
+			if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('S'))  {
 				princesa.moverseAbajo();
 			}
 			
@@ -164,10 +163,6 @@ public class Juego extends InterfaceJuego {
 				princesa.setX(princesa.getX() - 80);
 				princesa.setY(450);
 			}
-			
-			//if(princesa.getY()>500) {
-			//	princesa.setVidas(this.princesa.getVidas()-1); //resto una vida cuando cae
-			//}
 			
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
 			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && disparo == null) {

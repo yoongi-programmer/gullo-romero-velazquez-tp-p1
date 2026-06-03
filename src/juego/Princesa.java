@@ -1,12 +1,20 @@
 package juego;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.geom.Rectangle2D;
 import entorno.Entorno;
+import entorno.Herramientas;
 
 public class Princesa {
     private double x, y, ancho, alto, velocidad, altoMaximo;
     private int vidas;
     private boolean mirandoDerecha = true;
+    // Animación
+ 	private Image[] framesIzquierda;
+ 	private Image[] framesDerecha;
+
+ 	private int frameActual;
+ 	private int contadorAnimacion;
 
     //  --- Constructor ---
     public Princesa (double x, double y, double ancho, double alto, double velocidad, int vidas, double altoM) {
@@ -17,6 +25,22 @@ public class Princesa {
         this.velocidad = velocidad;
         this.vidas = vidas;
         this.altoMaximo = altoM;
+        
+        framesIzquierda = new Image[4];
+		framesDerecha = new Image[4];
+
+		framesIzquierda[0] = Herramientas.cargarImagen("img/princess_izq1.png");
+		framesIzquierda[1] = Herramientas.cargarImagen("img/princess_izq2.png");
+		framesIzquierda[2] = Herramientas.cargarImagen("img/princess_izq3.png");
+		framesIzquierda[3] = Herramientas.cargarImagen("img/princess_izq4.png");
+
+		framesDerecha[0] = Herramientas.cargarImagen("img/princess_der1.png");
+		framesDerecha[1] = Herramientas.cargarImagen("img/princess_der2.png");
+		framesDerecha[2] = Herramientas.cargarImagen("img/princess_der3.png");
+		framesDerecha[3] = Herramientas.cargarImagen("img/princess_der4.png");
+
+		frameActual = 0;
+		contadorAnimacion = 0;
     }
 
     //  --- getters --- 
@@ -33,7 +57,7 @@ public class Princesa {
     }
     
     public double getAlto() {
-    	return this.alto;
+    	return this.ancho;
     }
     
     public double getVelocidad() {
@@ -118,11 +142,25 @@ public class Princesa {
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;
+    	
+    	// animación
+		contadorAnimacion++;
+		if (contadorAnimacion >= 10) {
+			frameActual = (frameActual + 1) % 4;
+			contadorAnimacion = 0;
+		}
     }
     
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
     	this.mirandoDerecha = false;
+    	
+    	// animación
+		contadorAnimacion++;
+		if (contadorAnimacion >= 10) {
+			frameActual = (frameActual + 1) % 3;
+			contadorAnimacion = 0;
+		}
     }
     
     public void saltar() {
@@ -134,6 +172,12 @@ public class Princesa {
     }
     
     public void dibujarse (Entorno e) {
-    	e.dibujarRectangulo(x, y, ancho, alto, 0, Color.PINK);
+    	Image imagenActual;
+		if (this.mirandoDerecha) {
+			imagenActual = framesDerecha[frameActual];
+		} else {
+			imagenActual = framesIzquierda[frameActual];
+		}
+		e.dibujarImagen(imagenActual, x, y, 0, 2);
     }
 }
