@@ -178,6 +178,9 @@ public class Princesa {
 		} else {
 			imagenActual = framesIzquierda[frameActual];
 		}
-		e.dibujarImagen(imagenActual, x, y, 0, 2);
+		
+		
+		double ajusteY = -22;
+		e.dibujarImagen(imagenActual, x, y + ajusteY, 0, 2);
     }
 }

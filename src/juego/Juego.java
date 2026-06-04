@@ -144,17 +144,17 @@ public class Juego extends InterfaceJuego {
 			}
 			//correr a la derecha y saltar
 			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
-				princesa.saltar();
+				//princesa.saltar();
 				princesa.moverseDerecha();
 			}
 			//correr a la izquierda y saltar
 			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
-				princesa.saltar();
+				//princesa.saltar();
 				princesa.moverseIzquierda();
 			}
-			if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('S'))  {
-				princesa.moverseAbajo();
-			}
+			//if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('S'))  {
+			//	princesa.moverseAbajo();
+			//}
 			
 			
 			//Devuelve a la princesa a la isla si cayó al vacio
