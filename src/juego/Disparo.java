@@ -3,88 +3,126 @@ package juego;
 import entorno.Entorno;
 import entorno.Herramientas;
 import java.awt.Image;
+
 public class Disparo {
 
-	private double origenX;
-	private double origenY;
-	private double destinoX;
-	private double destinoY;
-	private double diametro;
-	private int velocidad;
-	private double angulo;
+    private double origenX;
+    private double origenY;
 
+    private double velocidadX;
+    private double velocidadY;
 
-	private Image imagen;
+    private double diametro;
 
-	public Disparo(double x, double y, double destinoX, double destinoY) {
-		this.origenX = x;
+    private Image imagen;
+    
+	private Image[] framesN;
+	private int frameActual;
+	private int contadorAnimacion;
+
+    // DISPARO NORMAL
+    public Disparo(double x, double y, boolean derecha) {
+
+        this.origenX = x;
         this.origenY = y;
+
         this.diametro = 20;
-        this.velocidad = 5; 
 
-        // 1. Angulo del mouse (saber a donde disparar)
-        this.angulo = Math.atan2(destinoY - y, destinoX - x); //calculo la distancia (catetos de un triangulo como vimos en clase)
+        if (derecha) {
+            velocidadX = 8;
+        } else {
+            velocidadX = -8;
+        }
 
-        // 2. Multiplico cos * angulo y sin * angulo para obtener y lo multiplico por velocidad para obtener ubicaciob exacta de hacia donde disparar
-        this.destinoX = Math.cos(this.angulo) * this.velocidad; 
-        this.destinoY = Math.sin(this.angulo) * this.velocidad;
+        velocidadY = 0;
 
-		this.imagen = Herramientas.cargarImagen("img/disparo1.png");
-	}
-	
-	
+        imagen = Herramientas.cargarImagen("img/disparo1.png");
+    }
 
-	public void mover() {
-		this.origenX += this.destinoX;
-		this.origenY += this.destinoY;
-	}
-	
-	public boolean colisionaConIsla(Isla isla) {
-	    double radio = this.diametro / 2.0; //el radio mide la distancia desde el centro hasta un borde determinado
-	    
-	    // 1. Todos los bordes del disparo
-	    double miBordeIzq = this.origenX - radio;
-	    double miBordeDer = this.origenX + radio;
-	    double miBordeArriba = this.origenY - radio;
-	    double miBordeAbajo = this.origenY + radio;
+    // DISPARO ESPECIAL (APUNTA AL MOUSE)
+    public Disparo(double x, double y,
+                   double destinoX, double destinoY) {
 
-	    // 2. calculo los bordes de las islas usando los getters
-	    double islaIzq = isla.getX() - (isla.getAncho() / 2.0);
-	    double islaDer = isla.getX() + (isla.getAncho() / 2.0);
-	    double islaArriba = isla.getY() - (isla.getAlto() / 2.0);
-	    double islaAbajo = isla.getY() + (isla.getAlto() / 2.0);
+        this.origenX = x;
+        this.origenY = y;
 
-	    // 3. Verificar si las cajas se superponen
-	    boolean superposicionX = (miBordeIzq <= islaDer) && (miBordeDer >= islaIzq);
-	    boolean superposicionY = (miBordeArriba <= islaAbajo) && (miBordeAbajo >= islaArriba);
+        this.diametro = 20;
 
-	    return superposicionX && superposicionY;
-	}
-	
-	public void dibujar(Entorno e) {
-		e.dibujarImagen(imagen, origenX, origenY, Math.PI, 0.2);
-	}
-	
-	public boolean estaFueraPantalla() {
-		return origenX < -200 || origenX > 1200 || origenY > 500 ||origenY < 0;
-	}
+        double angulo =
+                Math.atan2(destinoY - y,
+                           destinoX - x);
 
-	public double getPosicionX() {
-		return origenX;
-	}
+        velocidadX = Math.cos(angulo) * 8;
+        velocidadY = Math.sin(angulo) * 8;
 
-	public double getPosicionY() {
-		return origenY;
-	}
+        framesN = new Image[2];
 
-	public double getDiametro() {
-		return diametro;
-	}
-	public double getAngulo() {
-		return angulo;
-	}
-	
-	public void setAngulo(double angulo){
-		this.angulo = angulo;
-	}
+
+        framesN [0] = Herramientas.cargarImagen("img/disparoEsp1.png");
+        framesN [1] = Herramientas.cargarImagen("img/disparoEsp2.png");
+        
+		frameActual = 0;
+		contadorAnimacion = 0;
+    }
+
+    public void mover() {
+        origenX += velocidadX;
+        origenY += velocidadY;
+        
+		// animación
+		contadorAnimacion++;
+		if (contadorAnimacion >= 10) {
+			frameActual = (frameActual + 1) % 2;
+			contadorAnimacion = 0;
+		}
+    }
+
+    public void dibujar(Entorno e) {
+
+        if (framesN != null) {
+            e.dibujarImagen(framesN[frameActual], origenX, origenY, 0, 1);
+        } else {
+            e.dibujarImagen(imagen, origenX, origenY, 0, 0.2);
+        }
+    }
+
+    public boolean colisionaConIsla(Isla isla) {
+
+        double radio = diametro / 2.0;
+
+        double miBordeIzq = origenX - radio;
+        double miBordeDer = origenX + radio;
+        double miBordeArriba = origenY - radio;
+        double miBordeAbajo = origenY + radio;
+
+        double islaIzq = isla.getX() - isla.getAncho() / 2.0;
+        double islaDer = isla.getX() + isla.getAncho() / 2.0;
+        double islaArriba = isla.getY() - isla.getAlto() / 2.0;
+        double islaAbajo = isla.getY() + isla.getAlto() / 2.0;
+		
+        return miBordeIzq <= islaDer
+                && miBordeDer >= islaIzq
+                && miBordeArriba <= islaAbajo
+                && miBordeAbajo >= islaArriba;
+                        
+    }
+
+    public boolean estaFueraPantalla() {
+        return origenX < -200
+                || origenX > 1200
+                || origenY < -200
+                || origenY > 700;
+    }
+
+    public double getPosicionX() {
+        return origenX;
+    }
+
+    public double getPosicionY() {
+        return origenY;
+    }
+
+    public double getDiametro() {
+        return diametro;
+    }
 }

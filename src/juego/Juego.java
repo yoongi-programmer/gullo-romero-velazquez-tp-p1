@@ -7,17 +7,27 @@ import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego {
+	
 	private Entorno entorno;
-	Color textoColor = new Color (213, 231, 247);
-	private int ganar;
-	private double xMapa;
-	private double yMapa;
-	private Image imagen; 
     private Isla[] islas;
     private Princesa princesa;
 	private Enemigos[] enemigo;
 	private Disparo disparo;
+	private Poder poder;	
+	
+	private boolean tienePoder = false;
+	private int disparosEspeciales = 0;	
+	
+	private int ganar;
+	private int enemigosMatados;
+	
+	private double xMapa;
+	private double yMapa;
+	
+	private Image imagen; 
+	
 	boolean tocandoElPiso;
+	Color textoColor = new Color (213, 231, 247);	
 	
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
@@ -92,6 +102,16 @@ public class Juego extends InterfaceJuego {
             }
         }
         
+        if (poder != null) {
+
+            if (direccion < 0) {
+                poder.moverConMapaIzquierda();
+            }
+
+            if (direccion > 0) {
+                poder.moverConMapaDerecha();
+            }
+        }
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
     
@@ -165,26 +185,50 @@ public class Juego extends InterfaceJuego {
 			}
 			
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
-			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && disparo == null) {
-				disparo = new Disparo(
-						princesa.getX(),
-						princesa.getY(),
-						entorno.mouseX(),
-						entorno.mouseY());
+			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)
+			        && disparo == null) {
+
+			    if (tienePoder) {
+
+			    	// disparo especial apuntando al mouse
+			        disparo = new Disparo(
+			                princesa.getX(),
+			                princesa.getY(),
+			                entorno.mouseX(),
+			                entorno.mouseY());
+
+			        disparosEspeciales--;
+
+			        if (disparosEspeciales <= 0) {
+			            tienePoder = false;
+			        }
+
+			    } else {
+
+			        disparo = new Disparo(
+			                princesa.getX(),
+			                princesa.getY() - 10,
+			                princesa.estaMirandoDerecha());
+			    }
 			}
 			
 			// Mover disparo
 			if (disparo != null) {
-				disparo.mover();
-				
-				if (disparo.estaFueraPantalla()) {
-					disparo = null;
-				}
-				for (int i = 0; i < islas.length; i++) {
-			        if (islas[i] != null) { //condicion para asegurarme de que la isla exista antes de seguir
-			            if (disparo.colisionaConIsla(islas[i])) {
-			                disparo = null; // El disparo impactó, desaparece
-			                break;          // si el disparo desaparece corto el for para que no siga revisando otras islas
+
+			    disparo.mover();
+
+			    if (disparo.estaFueraPantalla()) {
+			        disparo = null;
+			    }
+
+			    if (disparo != null) {
+			        for (int i = 0; i < islas.length; i++) {
+
+			            if (islas[i] != null &&
+			                disparo.colisionaConIsla(islas[i])) {
+
+			                disparo = null;
+			                break;
 			            }
 			        }
 			    }
@@ -208,6 +252,14 @@ public class Juego extends InterfaceJuego {
 				}
 			}
 			
+			if (poder != null && poder.colisionaConPrincesa(princesa)) {
+
+				    tienePoder = true;
+				    disparosEspeciales = 3;
+
+				    poder = null;
+				}
+			
 			//DIBUJAR TODO-----------------------------------------------------------
 			this.dibujar(this.entorno);		//fondo	
 			
@@ -225,6 +277,10 @@ public class Juego extends InterfaceJuego {
 			if (disparo != null) {
 				disparo.dibujar(entorno);
 			}
+						
+			if (poder != null) {
+			    poder.dibujar(entorno);
+			}
 			
 			//----------------------------------------------- Dibujar enemigos
 			for (int i = 0; i < enemigo.length; i++) {
@@ -235,12 +291,23 @@ public class Juego extends InterfaceJuego {
 
 			        // COLISION DISPARO
 			        if (disparo != null &&
-			            enemigo[i].colisionDisparoEnemigo(disparo)) {
+			        	    enemigo[i].colisionDisparoEnemigo(disparo)) {
 
-			            enemigo[i] = null;
-			            disparo = null;
-			            continue;
-			        }
+			        	    enemigosMatados++;
+
+			        	    if (enemigosMatados % 3 == 0 &&
+			        	        poder == null &&
+			        	        !tienePoder) {
+
+			        	        poder = new Poder(
+			        	                enemigo[i].getX(),
+			        	                enemigo[i].getY());
+			        	    }
+
+			        	    enemigo[i] = null;
+			        	    disparo = null;
+			        	    continue;
+			        	}
 			        
 			        //COLISION PRINCSA
 			        if (enemigo[i].colisionaConPrincesa(princesa)) {

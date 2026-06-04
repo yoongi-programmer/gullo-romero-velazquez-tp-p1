@@ -17,7 +17,7 @@ public class Enemigos {
 
 	private int ancho = 30;
 	private int alto = 30;
-
+	
 	// Animación
 	private Image[] framesIzquierda;
 	private Image[] framesDerecha;
