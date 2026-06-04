@@ -20,12 +20,12 @@ public class Disparo {
 		this.origenX = x;
         this.origenY = y;
         this.diametro = 20;
-        this.velocidad = 5; // Podés ajustar la velocidad
+        this.velocidad = 5; 
 
-        // 1. Angulo del mouse
-        this.angulo = Math.atan2(destinoY - y, destinoX - x);
+        // 1. Angulo del mouse (saber a donde disparar)
+        this.angulo = Math.atan2(destinoY - y, destinoX - x); //calculo la distancia (catetos de un triangulo como vimos en clase)
 
-        // 2. Descomponemos la velocidad en sus componentes X e Y
+        // 2. Multiplico cos * angulo y sin * angulo para obtener y lo multiplico por velocidad para obtener ubicaciob exacta de hacia donde disparar
         this.destinoX = Math.cos(this.angulo) * this.velocidad; 
         this.destinoY = Math.sin(this.angulo) * this.velocidad;
 
@@ -42,7 +42,7 @@ public class Disparo {
 	}
 	
 	public boolean estaFueraPantalla() {
-		return origenX < -200 || origenX > 1200;
+		return origenX < -200 || origenX > 1200 || origenY > 500 ||origenY < 0;
 	}
 
 	public double getPosicionX() {
