@@ -31,10 +31,34 @@ public class Disparo {
 
 		this.imagen = Herramientas.cargarImagen("img/disparo1.png");
 	}
+	
+	
 
 	public void mover() {
 		this.origenX += this.destinoX;
 		this.origenY += this.destinoY;
+	}
+	
+	public boolean colisionaConIsla(Isla isla) {
+	    double radio = this.diametro / 2.0; //el radio mide la distancia desde el centro hasta un borde determinado
+	    
+	    // 1. Todos los bordes del disparo
+	    double miBordeIzq = this.origenX - radio;
+	    double miBordeDer = this.origenX + radio;
+	    double miBordeArriba = this.origenY - radio;
+	    double miBordeAbajo = this.origenY + radio;
+
+	    // 2. calculo los bordes de las islas usando los getters
+	    double islaIzq = isla.getX() - (isla.getAncho() / 2.0);
+	    double islaDer = isla.getX() + (isla.getAncho() / 2.0);
+	    double islaArriba = isla.getY() - (isla.getAlto() / 2.0);
+	    double islaAbajo = isla.getY() + (isla.getAlto() / 2.0);
+
+	    // 3. Verificar si las cajas se superponen
+	    boolean superposicionX = (miBordeIzq <= islaDer) && (miBordeDer >= islaIzq);
+	    boolean superposicionY = (miBordeArriba <= islaAbajo) && (miBordeAbajo >= islaArriba);
+
+	    return superposicionX && superposicionY;
 	}
 	
 	public void dibujar(Entorno e) {

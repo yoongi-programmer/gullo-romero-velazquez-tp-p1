@@ -180,6 +180,14 @@ public class Juego extends InterfaceJuego {
 				if (disparo.estaFueraPantalla()) {
 					disparo = null;
 				}
+				for (int i = 0; i < islas.length; i++) {
+			        if (islas[i] != null) { //condicion para asegurarme de que la isla exista antes de seguir
+			            if (disparo.colisionaConIsla(islas[i])) {
+			                disparo = null; // El disparo impactó, desaparece
+			                break;          // si el disparo desaparece corto el for para que no siga revisando otras islas
+			            }
+			        }
+			    }
 			}
 		
 			// Mantener mínimo 3 enemigos
