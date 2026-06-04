@@ -3,56 +3,64 @@ package juego;
 import entorno.Entorno;
 import entorno.Herramientas;
 import java.awt.Image;
-
 public class Disparo {
 
-	private double x;
-	private double y;
+	private double origenX;
+	private double origenY;
+	private double destinoX;
+	private double destinoY;
 	private double diametro;
 	private int velocidad;
+	private double angulo;
 
-	private boolean derecha;
 
 	private Image imagen;
 
-	public Disparo(double x, double y, boolean derecha) {
+	public Disparo(double x, double y, double destinoX, double destinoY) {
+		this.origenX = x;
+        this.origenY = y;
+        this.diametro = 20;
+        this.velocidad = 5; // Podés ajustar la velocidad
 
-		this.x = x;
-		this.y = y;
-		this.derecha = derecha;
+        // 1. Angulo del mouse
+        this.angulo = Math.atan2(destinoY - y, destinoX - x);
 
-		this.diametro = 20;
-		this.velocidad = 5;
+        // 2. Descomponemos la velocidad en sus componentes X e Y
+        this.destinoX = Math.cos(this.angulo) * this.velocidad; 
+        this.destinoY = Math.sin(this.angulo) * this.velocidad;
 
 		this.imagen = Herramientas.cargarImagen("img/disparo1.png");
 	}
 
 	public void mover() {
-
-		if (derecha) {
-			x += velocidad;
-		} else {
-			x -= velocidad;
-		}
+		this.origenX += this.destinoX;
+		this.origenY += this.destinoY;
 	}
-
+	
 	public void dibujar(Entorno e) {
-		e.dibujarImagen(imagen, x, y, derecha ? 0 : Math.PI, 0.2);
+		e.dibujarImagen(imagen, origenX, origenY, Math.PI, 0.2);
 	}
 	
 	public boolean estaFueraPantalla() {
-		return x < -200 || x > 1200;
+		return origenX < -200 || origenX > 1200;
 	}
 
 	public double getPosicionX() {
-		return x;
+		return origenX;
 	}
 
 	public double getPosicionY() {
-		return y;
+		return origenY;
 	}
 
 	public double getDiametro() {
 		return diametro;
+	}
+	public double getAngulo() {
+		return angulo;
+	}
+	
+	public void setAngulo(double angulo){
+		this.angulo = angulo;
 	}
 }

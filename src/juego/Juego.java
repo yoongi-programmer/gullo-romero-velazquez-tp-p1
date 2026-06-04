@@ -169,7 +169,8 @@ public class Juego extends InterfaceJuego {
 				disparo = new Disparo(
 						princesa.getX(),
 						princesa.getY(),
-						princesa.estaMirandoDerecha());
+						entorno.mouseX(),
+						entorno.mouseY());
 			}
 			
 			// Mover disparo
