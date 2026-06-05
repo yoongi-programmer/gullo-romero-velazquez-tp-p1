@@ -15,6 +15,10 @@ public class Princesa {
 
  	private int frameActual;
  	private int contadorAnimacion;
+ 	private boolean tocandoElSuelo;
+ 	private double gravedad;
+ 	private double velocidadY;
+ 	private double potenciaSalto;
 
     //  --- Constructor ---
     public Princesa (double x, double y, double ancho, double alto, double velocidad, int vidas, double altoM) {
@@ -41,6 +45,9 @@ public class Princesa {
 
 		frameActual = 0;
 		contadorAnimacion = 0;
+		gravedad = 0.4;
+		velocidadY = 0;
+		potenciaSalto = -8.5;
     }
 
     //  --- getters --- 
@@ -57,7 +64,7 @@ public class Princesa {
     }
     
     public double getAlto() {
-    	return this.ancho;
+    	return this.alto;
     }
     
     public double getVelocidad() {
@@ -69,6 +76,18 @@ public class Princesa {
 
     public boolean estaMirandoDerecha() {
     	return mirandoDerecha;
+    }
+    
+    public boolean getTcandoElSUelo() {
+    	return tocandoElSuelo;
+    }
+    
+    public double getVelocidadY() {
+    	return velocidadY;
+    }
+    
+    public double getPotenciaSalto() {
+    	return potenciaSalto;
     }
     //  --- Setters --- 
     
@@ -95,34 +114,22 @@ public class Princesa {
 	public void setVidas(int vidas) {
 		this.vidas = vidas;
 	} 
-    //El codigo siguiente crea un rectangulo que cubre el cuerpo de la princesa y distintos sensores en cada  lado como pequeños rectangulos
-    
-    //  --- Cuerpo de la princesa ---
-    public Rectangle2D.Double getCuerpo() {
-        return new Rectangle2D.Double(x, y, ancho, alto);
-    }
+	
+	public void setTocandoElSuelo(boolean tocandoSuelo) {
+		this.tocandoElSuelo = tocandoSuelo; 
+	}
+	
+	public void setVelocidadY(double velocidadY) {
+		this.velocidadY = velocidadY;
+	}
+	
+	public void setGravedad (double gravedad) {
+		this.gravedad = gravedad;
+	}
+	public void desacelerarY (double cantidad) {
+		this.y += cantidad;
+	}
 
-    // --- SENSORES DE LOS LADOS ---
-
-    public Rectangle2D.Double getSensorAbajo() {
-        // Posicionado justo en la base, con 2 píxeles de alto
-        return new Rectangle2D.Double(x + 5, y + alto - 2, ancho - 10, 2);
-    }
-
-    public Rectangle2D.Double getSensorArriba() {
-        // Justo en el techo
-        return new Rectangle2D.Double(x + 5, y, ancho - 10, 2);
-    }
-
-    public Rectangle2D.Double getSensorIzquierda() {
-        // En el borde izquierdo, con 2 píxeles de ancho
-        return new Rectangle2D.Double(x, y + 5, 2, alto - 10);
-    }
-
-    public Rectangle2D.Double getSensorDerecha() {
-        // En el borde derecho
-        return new Rectangle2D.Double(x + ancho - 2, y + 5, 2, alto - 10);
-    }
     //metodos
 
     public boolean paradaSobreIsla(Isla isla) {
@@ -163,12 +170,28 @@ public class Princesa {
 		}
     }
     
+    
+    
     public void saltar() {
-    	this.y-= this.altoMaximo;
+    	if(tocandoElSuelo) {
+    		this.velocidadY = potenciaSalto;
+    		this.tocandoElSuelo = false;
+    		}
+    }
+    
+    public void modificarFisica() {
+    	if(!tocandoElSuelo) {
+    		this.y += this.velocidadY;
+        	this.velocidadY += this.gravedad;       	
+    	} 	
+    	else {
+    		this.velocidadY = 0;
+    	}
+    	
     }
     
     public void moverseAbajo() {
-    	this.y+=this.velocidad;
+    	this.y+=this.gravedad;
     }
     
     public void dibujarse (Entorno e) {

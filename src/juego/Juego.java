@@ -105,15 +105,19 @@ public class Juego extends InterfaceJuego {
 	                if (this.princesa.paradaSobreIsla(this.islas[i])) {
 	                    tocandoElPiso = true;
 	                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );
+	                    break;
 	                }
 	            }
 	        }
 			
-			//Gravedad
-			if(!tocandoElPiso) {
-				this.princesa.moverseAbajo();
+			this.princesa.setTocandoElSuelo(tocandoElPiso);
+			
+			if (this.entorno.estaPresionada(this.entorno.TECLA_ARRIBA) || this.entorno.estaPresionada('w')) {
+				this.princesa.saltar();
 			}
-				
+			
+			this.princesa.modificarFisica();
+
 			// Control del movimiento de la Princesa----------------------------------
 			if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('D')) {
 			    if (this.princesa.getX() < 500) {
@@ -139,22 +143,6 @@ public class Juego extends InterfaceJuego {
 			    }
 			}
 
-			if ((entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('W')) && tocandoElPiso) {
-			    princesa.saltar();
-			}
-			//correr a la derecha y saltar
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
-				//princesa.saltar();
-				princesa.moverseDerecha();
-			}
-			//correr a la izquierda y saltar
-			if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || this.entorno.estaPresionada('A')) && tocandoElPiso) {
-				//princesa.saltar();
-				princesa.moverseIzquierda();
-			}
-			//if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('S'))  {
-			//	princesa.moverseAbajo();
-			//}
 			
 			
 			//Devuelve a la princesa a la isla si cayó al vacio
@@ -180,6 +168,8 @@ public class Juego extends InterfaceJuego {
 				if (disparo.estaFueraPantalla()) {
 					disparo = null;
 				}
+				
+				//Colision de disparo con isla
 				for (int i = 0; i < islas.length; i++) {
 			        if (islas[i] != null) { //condicion para asegurarme de que la isla exista antes de seguir
 			            if (disparo.colisionaConIsla(islas[i])) {
