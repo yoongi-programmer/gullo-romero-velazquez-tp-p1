@@ -17,7 +17,9 @@ public class Enemigos {
 
 	private int ancho = 30;
 	private int alto = 30;
-
+	
+	private static int enemigosMuertos = 0;
+	
 	// Animación
 	private Image[] framesIzquierda;
 	private Image[] framesDerecha;
@@ -26,13 +28,11 @@ public class Enemigos {
 	private int contadorAnimacion;
 
 	public Enemigos(double x, double y, boolean vaDerecha) {
-
 		this.x = x;
 		this.y = y;
 		this.vaDerecha = vaDerecha;
-
 		this.velocidad = 0.8;
-
+		
 		framesIzquierda = new Image[3];
 		framesDerecha = new Image[3];
 
@@ -49,38 +49,38 @@ public class Enemigos {
 	}
 	
 	public static Enemigos generarEnemigo(Isla[] islas, Princesa princesa, Enemigos[] enemigos) {
-
 	    Random r = new Random();
 	    Isla isla = null;
-
+	    
 	    while (isla == null) {
-
 	        Isla candidata = islas[r.nextInt(islas.length)];
-
 	        if (candidata != null && !princesa.paradaSobreIsla(candidata)) {
 	            isla = candidata;
 	        }
 	    }
-
 	    double x = isla.getArea().x + r.nextInt(isla.getArea().width);
-	    double y = isla.getArea().y - 30;
+	    double y = isla.getArea().y - 30; 
 	    
 	    for (int i = 0; i < enemigos.length; i++) {
-
 	        if (enemigos[i] != null) {
-
 	            if (Math.abs(x - enemigos[i].getX()) < 200) {
 	                return generarEnemigo(islas, princesa, enemigos);
 	            }
 	        }
 	    }
-
 	    return new Enemigos(x, y, r.nextBoolean());
 	}
-
 	
-	public void mover(Isla[] islas) {
+	public Poder generarPoder() {
+	    enemigosMuertos++;
+	    
+	    if (enemigosMuertos % 3 == 0) {
+	        return new Poder(x, y);
+	    }
+	    return null;
+	}
 
+	public void mover(Isla[] islas) {
 		for (int i = 0; i < islas.length; i++) {
 			if (islas[i] != null && vaAChocar(islas[i])) {
 				// cambia de dirección
@@ -100,8 +100,7 @@ public class Enemigos {
 			contadorAnimacion = 0;
 		}
 	}
-	
-	
+		
 	public void moverConMapaIzquierda() {
 	    this.x -= 3;
 	}
@@ -110,27 +109,21 @@ public class Enemigos {
 	    this.x += 3;
 	}
 
-
 	public boolean colisionDisparoEnemigo(Disparo disparo) {
-
 		double radioDisparo = disparo.getDiametro() / 2.0;
-		return disparo.getPosicionX() + radioDisparo >= this.x - ancho / 2
-				&& disparo.getPosicionX() - radioDisparo <= this.x + ancho / 2
-				&& disparo.getPosicionY() + radioDisparo >= this.y - alto / 2
-				&& disparo.getPosicionY() - radioDisparo <= this.y + alto / 2;
+		return disparo.getPosicionX() + radioDisparo >= this.x - ancho / 2 && disparo.getPosicionX() - radioDisparo <= this.x + ancho / 2 && disparo.getPosicionY() + radioDisparo >= this.y - alto / 2 && disparo.getPosicionY() - radioDisparo <= this.y + alto / 2;
 	}
 	
 	
 	public boolean colisionaConIsla(Isla isla) {
-
 		Rectangle enemigoRect = new Rectangle((int)(x - ancho/2), (int)(y - alto/2), ancho, alto);
 		return enemigoRect.intersects(isla.getArea());
 	}
 
 	
 	public boolean vaAChocar(Isla isla) {
-
 		Rectangle futuro;
+		
 		if (vaDerecha) {
 			futuro = new Rectangle((int)(x + velocidad - ancho/2), (int)(y - alto/2), ancho, alto);
 		} else {
@@ -140,16 +133,12 @@ public class Enemigos {
 	}
 	
 	public boolean colisionaConPrincesa(Princesa princesa) {
-
-	    return this.x + this.ancho / 2 >= princesa.getX() - princesa.getAncho() / 2
-	            && this.x - this.ancho / 2 <= princesa.getX() + princesa.getAncho() / 2
-	            && this.y + this.alto / 2 >= princesa.getY() - princesa.getAlto() / 2
-	            && this.y - this.alto / 2 <= princesa.getY() + princesa.getAlto() / 2;
+	    return this.x + this.ancho / 2 >= princesa.getX() - princesa.getAncho() / 2 && this.x - this.ancho / 2 <= princesa.getX() + princesa.getAncho() / 2 && this.y + this.alto / 2 >= princesa.getY() - princesa.getAlto() / 2 && this.y - this.alto / 2 <= princesa.getY() + princesa.getAlto() / 2;
 	}
 
 	public void dibujar(Entorno entorno) {
-
 		Image imagenActual;
+		
 		if (vaDerecha) {
 			imagenActual = framesDerecha[frameActual];
 		} else {
@@ -157,13 +146,11 @@ public class Enemigos {
 		}
 		entorno.dibujarImagen(imagenActual, x, y, 0, 2);
 	}
-
 	
 	public boolean fueraDePantalla() {
 		return x < -200 || x > 1200;
 	}
 
-	
 	public double getX() {
 		return x;
 	}

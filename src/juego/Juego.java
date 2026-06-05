@@ -7,17 +7,24 @@ import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego {
+	
 	private Entorno entorno;
-	Color textoColor = new Color (213, 231, 247);
-	private int ganar;
-	private double xMapa;
-	private double yMapa;
-	private Image imagen; 
     private Isla[] islas;
     private Princesa princesa;
 	private Enemigos[] enemigo;
-	private Disparo disparo;
+	private Poder poder;	
+	
+	private boolean tienePoder = false;
+	private int disparosEspeciales = 0;	
+	private int ganar;
+	
+	private double xMapa;
+	private double yMapa;
+	
+	private Image imagen; 
+	
 	boolean tocandoElPiso;
+	Color textoColor = new Color (213, 231, 247);	
 	
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
@@ -28,8 +35,7 @@ public class Juego extends InterfaceJuego {
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
-        this.imagen = Herramientas.cargarImagen("img/fondo3.png");
-        
+        this.imagen = Herramientas.cargarImagen("img/fondo3.png");     
 		this.entorno.iniciar(); // Inicia el juego!
 		inicializarPiso();
 		generarIslasFlotantes();
@@ -45,13 +51,12 @@ public class Juego extends InterfaceJuego {
 		int posX = 100;
 		int anchoIsla = 280;
 		int separacion = 80; // El hueco para que la princesa caiga
-
 		for (int i = 0; i < 10; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
-		} 		
-		
+		} 			
 	}
+    
     private void generarIslasFlotantes() {
     	int posX=500;
     	int posYAnterior = 320;
@@ -59,30 +64,27 @@ public class Juego extends InterfaceJuego {
         	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
         	int variacionY = ThreadLocalRandom.current().nextInt(-120, 80);
         	int separacionX = ThreadLocalRandom.current().nextInt(80, 120);
-        	int nuevoY = posYAnterior + variacionY;
-        	
+        	int nuevoY = posYAnterior + variacionY;        	
         	if (nuevoY < 150) {
                 nuevoY = 150;
             }
             if (nuevoY > 380) {
                 nuevoY = 380;
-            }
-            
+            }          
 			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
 			posYAnterior = nuevoY;
 		}
     }
+    
     public void moverMapa(double direccion) {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
                 this.islas[i].moverIslas(direccion);
             }
         }
-        
         for (int i = 0; i < enemigo.length; i++) {
             if (enemigo[i] != null) {
-
                 if (direccion < 0) {
                     enemigo[i].moverConMapaIzquierda();
                 }
@@ -90,8 +92,15 @@ public class Juego extends InterfaceJuego {
                     enemigo[i].moverConMapaDerecha();
                 }
             }
+        }     
+        if (poder != null) {
+            if (direccion < 0) {
+                poder.moverConMapaIzquierda();
+            }
+            if (direccion > 0) {
+                poder.moverConMapaDerecha();
+            }
         }
-        
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
     
@@ -153,32 +162,18 @@ public class Juego extends InterfaceJuego {
 			}
 			
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
-			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO) && disparo == null) {
-				disparo = new Disparo(
-						princesa.getX(),
-						princesa.getY(),
-						entorno.mouseX(),
-						entorno.mouseY());
-			}
-			
-			// Mover disparo
-			if (disparo != null) {
-				disparo.mover();
-				
-				if (disparo.estaFueraPantalla()) {
-					disparo = null;
-				}
-				
-				//Colision de disparo con isla
-				for (int i = 0; i < islas.length; i++) {
-			        if (islas[i] != null) { //condicion para asegurarme de que la isla exista antes de seguir
-			            if (disparo.colisionaConIsla(islas[i])) {
-			                disparo = null; // El disparo impactó, desaparece
-			                break;          // si el disparo desaparece corto el for para que no siga revisando otras islas
-			            }
+
+			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+			    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
+			    if (tienePoder) {
+			        disparosEspeciales--;
+			        if (disparosEspeciales <= 0) {
+			            tienePoder = false;
+
 			        }
 			    }
 			}
+			princesa.actualizarDisparo(islas);
 		
 			// Mantener mínimo 3 enemigos
 			int vivos = 0;
@@ -198,6 +193,12 @@ public class Juego extends InterfaceJuego {
 				}
 			}
 			
+			if (poder != null && poder.colisionaConPrincesa(princesa)) {
+				    tienePoder = true;
+				    disparosEspeciales = 3;
+				    poder = null;
+				}
+			
 			//DIBUJAR TODO-----------------------------------------------------------
 			this.dibujar(this.entorno);		//fondo	
 			
@@ -212,25 +213,23 @@ public class Juego extends InterfaceJuego {
 			princesa.dibujarse(this.entorno);
 			
 			// ---------------------------------------------- Dibujar disparo
-			if (disparo != null) {
-				disparo.dibujar(entorno);
-			}
-			
+			princesa.dibujarDisparo(entorno);
+								
 			//----------------------------------------------- Dibujar enemigos
 			for (int i = 0; i < enemigo.length; i++) {
 			    if (enemigo[i] != null) {
-
 			        enemigo[i].mover(islas);
 			        enemigo[i].dibujar(entorno);
 
 			        // COLISION DISPARO
-			        if (disparo != null &&
-			            enemigo[i].colisionDisparoEnemigo(disparo)) {
-
-			            enemigo[i] = null;
-			            disparo = null;
-			            continue;
-			        }
+			        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
+			        	    if (poder == null && !tienePoder) {
+			        	        poder = enemigo[i].generarPoder();
+			        	    }
+			        	    enemigo[i] = null;
+			        	    princesa.eliminarDisparo();
+			        	    continue;
+			        	}
 			        
 			        //COLISION PRINCSA
 			        if (enemigo[i].colisionaConPrincesa(princesa)) {
@@ -245,6 +244,11 @@ public class Juego extends InterfaceJuego {
 			        }
 			    }
 			}
+			
+			if (poder != null) {
+			    poder.dibujar(entorno);
+			}
+			
 			entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
 			entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
 		}else {
