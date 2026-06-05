@@ -6,120 +6,66 @@ import java.awt.Image;
 
 public class Disparo {
 
-    private double origenX;
-    private double origenY;
-
-    private double velocidadX;
-    private double velocidadY;
-
-    private double diametro;
+    private double x, y;
+    private double velocidadX, velocidadY;
+    private double diametro = 20;
 
     private Image imagen;
-    
-	private Image[] framesN;
-	private int frameActual;
-	private int contadorAnimacion;
+    private Image[] frames;
 
-    // DISPARO NORMAL
-    public Disparo(double x, double y, boolean derecha) {
+    private int frameActual;
+    private int contadorAnimacion;
+    private boolean especial;
 
-        this.origenX = x;
-        this.origenY = y;
-
-        this.diametro = 20;
-
-        if (derecha) {
-            velocidadX = 8;
-        } else {
-            velocidadX = -8;
-        }
-
-        velocidadY = 0;
-
-        imagen = Herramientas.cargarImagen("img/disparo1.png");
-    }
-
-    // DISPARO ESPECIAL (APUNTA AL MOUSE)
-    public Disparo(double x, double y,
-                   double destinoX, double destinoY) {
-
-        this.origenX = x;
-        this.origenY = y;
-
-        this.diametro = 20;
-
-        double angulo =
-                Math.atan2(destinoY - y,
-                           destinoX - x);
-
+    public Disparo(double x, double y, double destinoX, double destinoY, boolean especial) {
+        this.x = x;
+        this.y = y;
+        this.especial = especial;
+        
+        double angulo = Math.atan2(destinoY - y, destinoX - x);
+        
         velocidadX = Math.cos(angulo) * 8;
         velocidadY = Math.sin(angulo) * 8;
-
-        framesN = new Image[2];
-
-
-        framesN [0] = Herramientas.cargarImagen("img/disparoEsp1.png");
-        framesN [1] = Herramientas.cargarImagen("img/disparoEsp2.png");
         
-		frameActual = 0;
-		contadorAnimacion = 0;
+        if (especial) {
+            frames = new Image[] {Herramientas.cargarImagen("img/disparoEsp1.png"),Herramientas.cargarImagen("img/disparoEsp2.png")};
+        } else {
+            imagen = Herramientas.cargarImagen("img/disparo1.png");
+        }
     }
 
     public void mover() {
-        origenX += velocidadX;
-        origenY += velocidadY;
-        
-		// animación
-		contadorAnimacion++;
-		if (contadorAnimacion >= 10) {
-			frameActual = (frameActual + 1) % 2;
-			contadorAnimacion = 0;
-		}
+        x += velocidadX;
+        y += velocidadY;
+        if (especial && ++contadorAnimacion >= 10) {
+            frameActual = (frameActual + 1) % 2;
+            contadorAnimacion = 0;
+        }
     }
 
     public void dibujar(Entorno e) {
-
-        if (framesN != null) {
-            e.dibujarImagen(framesN[frameActual], origenX, origenY, 0, 1);
+        if (frames != null) {
+            e.dibujarImagen(frames[frameActual], x, y, 0, 1);
         } else {
-            e.dibujarImagen(imagen, origenX, origenY, 0, 0.2);
+            e.dibujarImagen(imagen, x, y, 0, 0.2);
         }
     }
 
     public boolean colisionaConIsla(Isla isla) {
-
-        double radio = diametro / 2.0;
-
-        double miBordeIzq = origenX - radio;
-        double miBordeDer = origenX + radio;
-        double miBordeArriba = origenY - radio;
-        double miBordeAbajo = origenY + radio;
-
-        double islaIzq = isla.getX() - isla.getAncho() / 2.0;
-        double islaDer = isla.getX() + isla.getAncho() / 2.0;
-        double islaArriba = isla.getY() - isla.getAlto() / 2.0;
-        double islaAbajo = isla.getY() + isla.getAlto() / 2.0;
-		
-        return miBordeIzq <= islaDer
-                && miBordeDer >= islaIzq
-                && miBordeArriba <= islaAbajo
-                && miBordeAbajo >= islaArriba;
-                        
+        double radio = diametro / 2;
+        return x + radio >= isla.getX() - isla.getAncho() / 2.0 && x - radio <= isla.getX() + isla.getAncho() / 2.0 && y + radio >= isla.getY() - isla.getAlto() / 2.0 && y - radio <= isla.getY() + isla.getAlto() / 2.0;
     }
 
     public boolean estaFueraPantalla() {
-        return origenX < -200
-                || origenX > 1200
-                || origenY < -200
-                || origenY > 700;
+        return x < -200 || x > 1200 || y < -200 || y > 700;
     }
 
     public double getPosicionX() {
-        return origenX;
+        return x;
     }
 
     public double getPosicionY() {
-        return origenY;
+        return y;
     }
 
     public double getDiametro() {

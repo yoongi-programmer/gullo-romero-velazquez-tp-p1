@@ -9,9 +9,12 @@ public class Princesa {
     private double x, y, ancho, alto, velocidad, altoMaximo;
     private int vidas;
     private boolean mirandoDerecha = true;
+    
     // Animación
  	private Image[] framesIzquierda;
  	private Image[] framesDerecha;
+ 	
+ 	private Disparo disparo;
 
  	private int frameActual;
  	private int contadorAnimacion;
@@ -57,7 +60,7 @@ public class Princesa {
     }
     
     public double getAlto() {
-    	return this.ancho;
+    	return this.alto;
     }
     
     public double getVelocidad() {
@@ -66,10 +69,9 @@ public class Princesa {
 	public int getVidas() {
 		return vidas;
 	}
-
-    public boolean estaMirandoDerecha() {
-    	return mirandoDerecha;
-    }
+	public Disparo getDisparo() {
+	    return disparo;
+	}
     //  --- Setters --- 
     
     public void setX(double x) {
@@ -139,10 +141,14 @@ public class Princesa {
 
         return alineadaEnX && tocandoTecho;
     }
+    
+    public boolean estaMirandoDerecha() {
+    	return mirandoDerecha;
+    }
+    
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;
-    	
     	// animación
 		contadorAnimacion++;
 		if (contadorAnimacion >= 10) {
@@ -154,7 +160,6 @@ public class Princesa {
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
     	this.mirandoDerecha = false;
-    	
     	// animación
 		contadorAnimacion++;
 		if (contadorAnimacion >= 10) {
@@ -171,6 +176,41 @@ public class Princesa {
     	this.y+=this.velocidad;
     }
     
+    public void disparar(double mouseX, double mouseY, boolean especial) {
+
+        if (disparo == null) {
+            disparo = new Disparo(this.x, this.y - 10, mouseX, mouseY, especial);
+        }
+    }
+    
+    public void actualizarDisparo(Isla[] islas) {
+        if (disparo != null) {
+            disparo.mover();
+            if (disparo.estaFueraPantalla()) {
+                disparo = null;
+                return;
+            }
+
+            for (int i = 0; i < islas.length; i++) {
+                if (islas[i] != null &&
+                    disparo.colisionaConIsla(islas[i])) {
+                    disparo = null;
+                    return;
+                }
+            }
+        }
+    }
+    
+    public void dibujarDisparo(Entorno entorno) {
+        if (disparo != null) {
+            disparo.dibujar(entorno);
+        }
+    }
+    
+    public void eliminarDisparo() {
+        disparo = null;
+    }
+    
     public void dibujarse (Entorno e) {
     	Image imagenActual;
 		if (this.mirandoDerecha) {
@@ -178,7 +218,6 @@ public class Princesa {
 		} else {
 			imagenActual = framesIzquierda[frameActual];
 		}
-		
 		
 		double ajusteY = -22;
 		e.dibujarImagen(imagenActual, x, y + ajusteY, 0, 2);
