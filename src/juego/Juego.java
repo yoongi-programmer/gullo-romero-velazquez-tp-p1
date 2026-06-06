@@ -34,8 +34,11 @@ public class Juego extends InterfaceJuego {
 		this.yMapa = y;
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
-		this.princesa = new Princesa (500 , 400, 25, 35,2, 5,50); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
-        this.imagen = Herramientas.cargarImagen("img/fondo3.png");     
+		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
+        this.imagen = Herramientas.cargarImagen("img/fondo.png");  
+        double anchoFondo = this.imagen.getWidth(null) * 0.8;
+		this.xMapa = anchoFondo / 2;
+		this.yMapa = 250;
 		this.entorno.iniciar(); // Inicia el juego!
 		inicializarPiso();
 		generarIslasFlotantes();
@@ -43,15 +46,15 @@ public class Juego extends InterfaceJuego {
 	
 	//METODOS DE COMPORTAMIENTO---------------------------------------------------------------------------
     public void dibujar(Entorno e) {
-        e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 2); //(imagen, coordenada X, coordenada Y, ángulo, escala)
+        e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 0.8); //(imagen, coordenada X, coordenada Y, ángulo, escala)
     }
     
     //--------------------------------------------------------------------- Mapa
     private void inicializarPiso() {
 		int posX = 100;
-		int anchoIsla = 280;
+		int anchoIsla = 300;
 		int separacion = 80; // El hueco para que la princesa caiga
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 12; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
 		} 			
@@ -60,9 +63,9 @@ public class Juego extends InterfaceJuego {
     private void generarIslasFlotantes() {
     	int posX=500;
     	int posYAnterior = 320;
-    	for (int i = 10; i < 30; i++) {
+    	for (int i = 12; i < 30; i++) {
         	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
-        	int variacionY = ThreadLocalRandom.current().nextInt(-120, 80);
+        	int variacionY = ThreadLocalRandom.current().nextInt(-110, 80);
         	int separacionX = ThreadLocalRandom.current().nextInt(80, 120);
         	int nuevoY = posYAnterior + variacionY;        	
         	if (nuevoY < 150) {
@@ -124,7 +127,6 @@ public class Juego extends InterfaceJuego {
 			if (this.entorno.estaPresionada(this.entorno.TECLA_ARRIBA) || this.entorno.estaPresionada('w')) {
 				this.princesa.saltar();
 			}
-			
 			this.princesa.modificarFisica();
 
 			// Control del movimiento de la Princesa----------------------------------
@@ -132,8 +134,11 @@ public class Juego extends InterfaceJuego {
 			    if (this.princesa.getX() < 500) {
 			        this.princesa.moverseDerecha();
 			    } else {
-			        if (this.xMapa >= 0) {
+			    	double anchoFondo = this.imagen.getWidth(null) * 0.8;
+			        // Permite scrollear hasta que el borde derecho de la imagen llegue al borde derecho de la pantalla (1000)
+			        if (this.xMapa + (anchoFondo / 2) > 1000) {
 			            moverMapa(-2);
+			            this.princesa.setMirandoDerecha(true);
 			        } else if (this.princesa.getX() < 1000) {
 			            this.princesa.moverseDerecha();
 			        }
@@ -144,16 +149,16 @@ public class Juego extends InterfaceJuego {
 			    if (this.princesa.getX() > 500) {
 			        this.princesa.moverseIzquierda();
 			    } else {
-			        if (this.xMapa <= 1000) {
+			    	double anchoFondo = this.imagen.getWidth(null) * 0.8;
+			        if (this.xMapa - (anchoFondo / 2) < 0) {
 			            moverMapa(2);
+			            this.princesa.setMirandoDerecha(false);
 			        } else if (this.princesa.getX() > 0) {
 			            this.princesa.moverseIzquierda();
 			        }
 			    }
 			}
 
-			
-			
 			//Devuelve a la princesa a la isla si cayó al vacio
 			if (princesa.getY() > 500 ) {
 				princesa.setVidas(princesa.getVidas()-1);
@@ -162,7 +167,6 @@ public class Juego extends InterfaceJuego {
 			}
 			
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
-
 			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
 			    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
 			    if (tienePoder) {

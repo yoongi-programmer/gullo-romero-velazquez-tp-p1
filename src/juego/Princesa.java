@@ -1,12 +1,10 @@
 package juego;
-import java.awt.Color;
 import java.awt.Image;
-import java.awt.geom.Rectangle2D;
 import entorno.Entorno;
 import entorno.Herramientas;
 
 public class Princesa {
-    private double x, y, ancho, alto, velocidad, altoMaximo;
+    private double x, y, ancho, alto, velocidad;
     private int vidas;
     private boolean mirandoDerecha = true;
     
@@ -24,14 +22,13 @@ public class Princesa {
  	private double potenciaSalto;
 
     //  --- Constructor ---
-    public Princesa (double x, double y, double ancho, double alto, double velocidad, int vidas, double altoM) {
+    public Princesa (double x, double y, double ancho, double alto, double velocidad, int vidas) {
         this.x = x;
         this.y = y;
         this.ancho = ancho;
         this.alto = alto;
         this.velocidad = velocidad;
         this.vidas = vidas;
-        this.altoMaximo = altoM;
         
         framesIzquierda = new Image[4];
 		framesDerecha = new Image[4];
@@ -50,7 +47,7 @@ public class Princesa {
 		contadorAnimacion = 0;
 		gravedad = 0.4;
 		velocidadY = 0;
-		potenciaSalto = -8.5;
+		potenciaSalto = -9.5;
     }
 
     //  --- getters --- 
@@ -129,7 +126,9 @@ public class Princesa {
 	public void setVelocidadY(double velocidadY) {
 		this.velocidadY = velocidadY;
 	}
-	
+	public void setMirandoDerecha(boolean mirandoD) {
+		this.mirandoDerecha = mirandoD;
+	}
 	public void setGravedad (double gravedad) {
 		this.gravedad = gravedad;
 	}
@@ -175,7 +174,7 @@ public class Princesa {
     	// animación
 		contadorAnimacion++;
 		if (contadorAnimacion >= 10) {
-			frameActual = (frameActual + 1) % 3;
+			frameActual = (frameActual + 1) % 4;
 			contadorAnimacion = 0;
 		}
     }
