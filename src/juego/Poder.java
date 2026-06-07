@@ -52,4 +52,7 @@ public class Poder {
     public void moverConMapaDerecha() {
         x += 3;
     }
+    public double getX() {
+    	return this.x;
+    }
 }

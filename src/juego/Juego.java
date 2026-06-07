@@ -67,14 +67,14 @@ public class Juego extends InterfaceJuego {
     	double anchoFondo = this.fondo.getWidth(null) * 0.8;
     	for (int i = 12; i < 30; i++) {
         	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
-        	int variacionY = ThreadLocalRandom.current().nextInt(-110, 80);
+        	int variacionY = ThreadLocalRandom.current().nextInt(-100, 80);
         	int separacionX = ThreadLocalRandom.current().nextInt(80, 120);
         	int nuevoY = posYAnterior + variacionY;        	
-        	if (nuevoY < 150) {
-                nuevoY = 150;
+        	if (nuevoY < 200) {		//si supera el alto maximo
+                nuevoY = 200;
             }
-            if (nuevoY > 380) {
-                nuevoY = 380;
+            if (nuevoY > 390) {		//fijo el alto minimo
+                nuevoY = 390;
             }          
 			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
@@ -145,36 +145,33 @@ public class Juego extends InterfaceJuego {
 	            if(this.islas[i] != null) {
 	                if (this.princesa.paradaSobreIsla(this.islas[i])) {
 	                    tocandoElPiso = true;
-	                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );
-	                    
+	                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );    
+	                }
+	                //Comprobar si choca la cabeza con el borde inferior de una isla
+		            if (this.princesa.getVelocidadY() < 0 && this.princesa.chocaCabezaConIsla(this.islas[i])) {
+		                this.princesa.setY(this.islas[i].getY() + (this.islas[i].getAlto() / 2) + (this.princesa.getAlto() / 2) + 18); //seteo Y para que choque
+		                this.princesa.setVelocidadY(1); 
+		            }
+		            // Comprobar si choca con lado derecho
+	                if (this.princesa.chocaLadoDerechoConIsla(this.islas[i])) {
+	                	if (this.princesa.getX() < 500) { 
+	                		this.princesa.setX(this.islas[i].getX() - (this.islas[i].getAncho() / 2) - (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+	                	} else {
+	                		// pongo lado inverso para cancelar el scroll de pantalla
+	                		moverMapa(2); 
+	                	}
+	                }
+	                //Comprobar si choca con lado izquierdo
+	                if (this.princesa.chocaLadoIzquierdoConIsla(this.islas[i])) {
+	                	if (this.princesa.getX() > 500) {
+	                		this.princesa.setX(this.islas[i].getX() + (this.islas[i].getAncho() / 2) + (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+	                	} else {
+	                		// pongo el lado inverso para cancelar scroll de pantalla
+	                		moverMapa(-2);
+	                	}
 	                }
 	            }
-	         //Comprobar si choca la cabeza con el borde inferior de una isla
-	            if (this.princesa.getVelocidadY() < 0 && this.princesa.chocaCabezaConIsla(this.islas[i])) {
-	                this.princesa.setY(this.islas[i].getY() + (this.islas[i].getAlto() / 2) + (this.princesa.getAlto() / 2) + 18); //seteo Y para que choque
-	                this.princesa.setVelocidadY(1); 
-	            }
-	            
-	         // Comprobar si choca con lado derecho
-                if (this.princesa.chocaLadoDerechoConIsla(this.islas[i])) {
-                	if (this.princesa.getX() < 500) { 
-                		this.princesa.setX(this.islas[i].getX() - (this.islas[i].getAncho() / 2) - (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
-                	} else {
-                		// pongo lado inverso para cancelar el scroll de pantalla
-                		moverMapa(2); 
-                	}
-                }
-                
-                //Comprobar si choca con lado izquierdo
-                if (this.princesa.chocaLadoIzquierdoConIsla(this.islas[i])) {
-                	if (this.princesa.getX() > 500) {
-                		this.princesa.setX(this.islas[i].getX() + (this.islas[i].getAncho() / 2) + (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
-                	} else {
-                		// pongo el lado inverso para cancelar scroll de pantalla
-                		moverMapa(-2);
-                	}
-	        }
-		}
+			}
 			
 			this.princesa.setTocandoElSuelo(tocandoElPiso);
 			

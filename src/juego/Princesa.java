@@ -149,9 +149,10 @@ public class Princesa {
         double islaDer = isla.getX() + (isla.getAncho() / 2);
 
         boolean alineadaEnX = (miBordeDer >= islaIzq) && (miBordeIzq <= islaDer);
-        boolean tocandoTecho = (misPies >= techoIsla - 5) && (misPies <= techoIsla + 5); // margen de 5 píxeles de error por la velocidad a la que cae.
+        boolean tocandoTecho = (misPies >= techoIsla - 10) && (misPies <= techoIsla + this.velocidadY + 10);// Le sumamos su propia velocidadY al margen para que la red de detección sea tan grande como la velocidad de su caída. 
 
-        return alineadaEnX && tocandoTecho;
+        // Agregamos (this.velocidadY >= 0) para asegurarnos de que SOLO se pare en la isla si está cayendo hacia abajo.
+        return alineadaEnX && tocandoTecho && (this.velocidadY >= 0);
     }
     
     public boolean chocaCabezaConIsla (Isla isla){
