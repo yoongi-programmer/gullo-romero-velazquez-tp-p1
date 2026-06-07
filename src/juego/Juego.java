@@ -87,24 +87,19 @@ public class Juego extends InterfaceJuego {
                 this.islas[i].moverIslas(direccion);
             }
         }
+        /*
         for (int i = 0; i < enemigo.length; i++) {
             if (enemigo[i] != null) {
                 if (direccion < 0) {
-                    enemigo[i].moverConMapaIzquierda();
+                    enemigo[i].setX(enemigo[i].getX() -3) ;
                 }
                 if (direccion > 0) {
-                    enemigo[i].moverConMapaDerecha();
+                    enemigo[i].setX(enemigo[i].getX() +3) ;
                 }
             }
-        }     
-        if (poder != null) {
-            if (direccion < 0) {
-                poder.moverConMapaIzquierda();
-            }
-            if (direccion > 0) {
-                poder.moverConMapaDerecha();
-            }
-        }
+        }   
+        */
+
      // Movemos el castillo junto con el mapa
         if (this.castillo != null) {
             if (direccion < 0) {
@@ -115,6 +110,8 @@ public class Juego extends InterfaceJuego {
         }
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
+    
+    
     public void reiniciarJuego(double x, double y) {
     	this.ganar = 0;
     	this.tienePoder = false;
@@ -217,6 +214,20 @@ public class Juego extends InterfaceJuego {
 			}
 			
 			// ENEMIGOS Y DISPAROS---------------------------------------------------
+			
+		       for (int i = 0; i < enemigo.length; i++) {
+		            if (enemigo[i] != null) {
+		                if (!enemigo[i].getVaDerecha() ) {
+		                    enemigo[i].setX(enemigo[i].getX() -3) ;
+		                }
+		                else if(enemigo[i].getVaDerecha()) {
+		                    enemigo[i].setX(enemigo[i].getX() +3) ;
+		                }
+		            }
+		        }  
+		       
+			
+			
 			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
 			    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
 			    if (tienePoder) {
@@ -244,6 +255,10 @@ public class Juego extends InterfaceJuego {
 						break;
 					}
 				}
+			}
+			
+			if (poder != null) {
+				poder.setY(poder.getY()+1);
 			}
 			
 			if (poder != null && poder.colisionaConPrincesa(princesa)) {

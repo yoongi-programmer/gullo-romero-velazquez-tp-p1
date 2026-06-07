@@ -88,11 +88,14 @@ public class Enemigos {
 				return;
 			}
 		}
+		
+		/*
 		if (vaDerecha) {
 			x += velocidad;
 		} else {
 			x -= velocidad;
 		}
+		*/
 		// animación
 		contadorAnimacion++;
 		if (contadorAnimacion >= 10) {
@@ -101,11 +104,11 @@ public class Enemigos {
 		}
 	}
 		
-	public void moverConMapaIzquierda() {
+	public void moverIzquierda() {
 	    this.x -= 3;
 	}
 	
-	public void moverConMapaDerecha() {
+	public void moverDerecha() {
 	    this.x += 3;
 	}
 
@@ -165,5 +168,13 @@ public class Enemigos {
 
 	public int getAlto() {
 		return alto;
+	}
+	
+	public boolean getVaDerecha() {
+		return vaDerecha;
+	}
+	
+	public double setX(double x) {
+		return this.x = x;
 	}
 }
