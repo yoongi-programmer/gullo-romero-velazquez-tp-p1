@@ -1,6 +1,7 @@
 package juego;
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.concurrent.ThreadLocalRandom;
 import entorno.Entorno;
 import entorno.Herramientas;
@@ -12,8 +13,8 @@ public class Juego extends InterfaceJuego {
     private Isla[] islas;
     private Princesa princesa;
 	private Enemigos[] enemigo;
-	private Poder poder;	
-	
+	private Poder poder;
+	private Castillo castillo; // Reemplazá el "private Image castillo;" por esto
 	private boolean tienePoder = false;
 	private int disparosEspeciales = 0;	
 	private int ganar;
@@ -21,8 +22,7 @@ public class Juego extends InterfaceJuego {
 	private double xMapa;
 	private double yMapa;
 	
-	private Image imagen; 
-	
+	private Image fondo; 
 	boolean tocandoElPiso;
 	Color textoColor = new Color (213, 231, 247);	
 	
@@ -35,8 +35,9 @@ public class Juego extends InterfaceJuego {
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
-        this.imagen = Herramientas.cargarImagen("img/fondo.png");  
-        double anchoFondo = this.imagen.getWidth(null) * 0.8;
+        this.fondo = Herramientas.cargarImagen("img/fondo.png");  
+        double anchoFondo = this.fondo.getWidth(null) * 0.8;
+        this.castillo = new Castillo(anchoFondo - 100, 360);
 		this.xMapa = anchoFondo / 2;
 		this.yMapa = 250;
 		this.entorno.iniciar(); // Inicia el juego!
@@ -46,7 +47,7 @@ public class Juego extends InterfaceJuego {
 	
 	//METODOS DE COMPORTAMIENTO---------------------------------------------------------------------------
     public void dibujar(Entorno e) {
-        e.dibujarImagen(this.imagen, this.xMapa, this.yMapa, 0, 0.8); //(imagen, coordenada X, coordenada Y, ángulo, escala)
+        e.dibujarImagen(this.fondo, this.xMapa, this.yMapa, 0, 0.8); //(imagen, coordenada X, coordenada Y, ángulo, escala)
     }
     
     //--------------------------------------------------------------------- Mapa
@@ -104,15 +105,28 @@ public class Juego extends InterfaceJuego {
                 poder.moverConMapaDerecha();
             }
         }
+     // Movemos el castillo junto con el mapa
+        if (this.castillo != null) {
+            if (direccion < 0) {
+                this.castillo.moverIzquierda(direccion);
+            } else {
+                this.castillo.moverDerecha(direccion);
+            }
+        }
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
     public void reiniciarJuego(double x, double y) {
+    	this.ganar = 0;
+    	this.tienePoder = false;
+    	this.disparosEspeciales = 0;
+    	this.poder = null;
     	this.xMapa = x;
 		this.yMapa = y;
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
-        double anchoFondo = this.imagen.getWidth(null) * 0.8;
+        double anchoFondo = this.fondo.getWidth(null) * 0.8;
+        this.castillo = new Castillo(anchoFondo - 100, 360);
 		this.xMapa = anchoFondo / 2;
 		this.yMapa = 250;
 		inicializarPiso();
@@ -170,7 +184,7 @@ public class Juego extends InterfaceJuego {
 			    if (this.princesa.getX() < 500) {
 			        this.princesa.moverseDerecha();
 			    } else {
-			    	double anchoFondo = this.imagen.getWidth(null) * 0.8;
+			    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
 			        // Permite scrollear hasta que el borde derecho de la imagen llegue al borde derecho de la pantalla (1000)
 			        if (this.xMapa + (anchoFondo / 2) > 1000) {
 			            moverMapa(-2);
@@ -185,7 +199,7 @@ public class Juego extends InterfaceJuego {
 			    if (this.princesa.getX() > 500) {
 			        this.princesa.moverseIzquierda();
 			    } else {
-			    	double anchoFondo = this.imagen.getWidth(null) * 0.8;
+			    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
 			        if (this.xMapa - (anchoFondo / 2) < 0) {
 			            moverMapa(2);
 			            this.princesa.setMirandoDerecha(false);
@@ -239,7 +253,14 @@ public class Juego extends InterfaceJuego {
 				}
 			
 			//DIBUJAR TODO-----------------------------------------------------------
-			this.dibujar(this.entorno);		//fondo				
+			this.dibujar(this.entorno);		//fondo
+			if (this.castillo != null) {
+			    this.castillo.dibujar(this.entorno);
+			    
+			    if (this.castillo.colisionaConPrincesa(this.princesa)) {
+			        this.ganar = 1; 
+			    }
+			}
 			//----------------------------------------------- Dibujar islas
 			for(int i = 0; i < this.islas.length; i++) {
 				if(this.islas[i] != null) {
@@ -289,7 +310,11 @@ public class Juego extends InterfaceJuego {
 			if(this.ganar==1) {
 				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
 				entorno.escribirTexto("GANASTE", 350, 250);
-				
+				entorno.cambiarFont("Calibri", 30, textoColor, entorno.NEGRITA);
+				entorno.escribirTexto("Presiona la tecla 'R' para volver a jugar", 250, 350);
+				if (this.entorno.estaPresionada('R')) {
+					this.reiniciarJuego(1000, 250);
+				}
 			}else if(this.princesa.getVidas()==0) {
 				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
 				entorno.escribirTexto("PERDISTE", 350, 250);
