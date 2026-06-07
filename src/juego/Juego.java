@@ -128,10 +128,35 @@ public class Juego extends InterfaceJuego {
 	                if (this.princesa.paradaSobreIsla(this.islas[i])) {
 	                    tocandoElPiso = true;
 	                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );
-	                    break;
+	                    
 	                }
 	            }
+	         //Comprobar si choca la cabeza con el borde inferior de una isla
+	            if (this.princesa.getVelocidadY() < 0 && this.princesa.chocaCabezaConIsla(this.islas[i])) {
+	                this.princesa.setY(this.islas[i].getY() + (this.islas[i].getAlto() / 2) + (this.princesa.getAlto() / 2) + 18); //seteo Y para que choque
+	                this.princesa.setVelocidadY(1); 
+	            }
+	            
+	         // Comprobar si choca con lado derecho
+                if (this.princesa.chocaLadoDerechoConIsla(this.islas[i])) {
+                	if (this.princesa.getX() < 500) { 
+                		this.princesa.setX(this.islas[i].getX() - (this.islas[i].getAncho() / 2) - (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+                	} else {
+                		// pongo lado inverso para cancelar el scroll de pantalla
+                		moverMapa(2); 
+                	}
+                }
+                
+                //Comprobar si choca con lado izquierdo
+                if (this.princesa.chocaLadoIzquierdoConIsla(this.islas[i])) {
+                	if (this.princesa.getX() > 500) {
+                		this.princesa.setX(this.islas[i].getX() + (this.islas[i].getAncho() / 2) + (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+                	} else {
+                		// pongo el lado inverso para cancelar scroll de pantalla
+                		moverMapa(-2);
+                	}
 	        }
+		}
 			
 			this.princesa.setTocandoElSuelo(tocandoElPiso);
 			

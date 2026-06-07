@@ -153,6 +153,64 @@ public class Princesa {
         return alineadaEnX && tocandoTecho;
     }
     
+    public boolean chocaCabezaConIsla (Isla isla){
+    	double miCabeza = this.y - (this.alto / 2) -18;
+        double fondoIsla = isla.getY() + (isla.getAlto() / 2) -18;
+
+        double miBordeIzq = this.x - (this.ancho / 2);
+        double miBordeDer = this.x + (this.ancho / 2);
+        double islaIzq = isla.getX() - (isla.getAncho() / 2);
+        double islaDer = isla.getX() + (isla.getAncho() / 2);
+
+        // verifica la alineacion en x
+        boolean alineadaEnX = (miBordeDer >= islaIzq +12) && (miBordeIzq <= islaDer -12);
+        
+        // verifica la colision con el fondo de la isla (pequeño margen)
+        boolean tocandoFondo = (miCabeza <= fondoIsla + 5) && (miCabeza >= fondoIsla - 5);
+
+        return alineadaEnX && tocandoFondo;
+    }
+    
+    public boolean chocaLadoDerechoConIsla(Isla isla) {
+        // Bordes de la princesa (ajustando el desvío visual de -18 en Y)
+        double miBordeDer = this.x + (this.ancho / 2);
+        double miCabeza = this.y - (this.alto / 2) - 18;
+        double misPies = this.y + (this.alto / 2) - 18;
+
+        // Bordes de la isla
+        double islaIzq = isla.getX() - (isla.getAncho() / 2);
+        double techoIsla = isla.getY() - (isla.getAlto() / 2);
+        double fondoIsla = isla.getY() + (isla.getAlto() / 2);
+
+        //verifica la alineacion en Y con un margen para pisar y chocar cabeza,tambien verifica que los pies hayan pasado el borde inferior de la isla
+        boolean alineadaEnY = (misPies > techoIsla + 4) && (miCabeza < fondoIsla - 4) && (misPies <= fondoIsla);
+        
+        //verifica que su lado derecho atraviese el lado izquierdo de la isla
+        boolean cruzandoPared = (miBordeDer >= islaIzq) && (this.x < isla.getX());
+
+        return alineadaEnY && cruzandoPared;
+    }
+
+    public boolean chocaLadoIzquierdoConIsla(Isla isla) {
+        // Bordes de la princesa (ajustando el desvío visual de -18 en Y)
+        double miBordeIzq = this.x - (this.ancho / 2);
+        double miCabeza = this.y - (this.alto / 2) - 18;
+        double misPies = this.y + (this.alto / 2) - 18;
+
+        // Bordes de la isla
+        double islaDer = isla.getX() + (isla.getAncho() / 2);
+        double techoIsla = isla.getY() - (isla.getAlto() / 2);
+        double fondoIsla = isla.getY() + (isla.getAlto() / 2);
+
+        // Alineacion en Y (mismas condiciones que lado derecho)
+        boolean alineadaEnY = (misPies > techoIsla) && (miCabeza < fondoIsla) && (misPies <= fondoIsla);
+
+        //Comrpuebo si su lado izquierdo cruza la pared derecha de la isla pero su centro todavia no.
+        boolean cruzandoPared = (miBordeIzq <= islaDer) && (this.x > isla.getX());
+
+        return alineadaEnY && cruzandoPared;
+    }
+    
     public boolean estaMirandoDerecha() {
     	return mirandoDerecha;
     }
@@ -246,7 +304,7 @@ public class Princesa {
 			imagenActual = framesIzquierda[frameActual];
 		}
 		
-		double ajusteY = -22;
+		double ajusteY = -18;
 		e.dibujarImagen(imagenActual, x, y + ajusteY, 0, 2);
     }
 }
