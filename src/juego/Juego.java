@@ -53,7 +53,7 @@ public class Juego extends InterfaceJuego {
     //--------------------------------------------------------------------- Mapa
     private void inicializarPiso() {
 		int posX = 100;
-		int anchoIsla = 300;
+		int anchoIsla = 325;
 		int separacion = 80; // El hueco para que la princesa caiga
 		for (int i = 0; i < 12; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);	//x, y, ancho, alto
@@ -64,6 +64,7 @@ public class Juego extends InterfaceJuego {
     private void generarIslasFlotantes() {
     	int posX=500;
     	int posYAnterior = 320;
+    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
     	for (int i = 12; i < 30; i++) {
         	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
         	int variacionY = ThreadLocalRandom.current().nextInt(-110, 80);
@@ -77,6 +78,9 @@ public class Juego extends InterfaceJuego {
             }          
 			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
+			if(posX>anchoFondo-200) {
+				return;
+			}
 			posYAnterior = nuevoY;
 		}
     }
@@ -281,7 +285,6 @@ public class Juego extends InterfaceJuego {
 			entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
 			entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
 		}else {
-			
 			if(this.ganar==1) {
 				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
 				entorno.escribirTexto("GANASTE", 350, 250);

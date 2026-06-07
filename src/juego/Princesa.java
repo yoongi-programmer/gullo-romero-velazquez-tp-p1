@@ -1,5 +1,7 @@
 package juego;
 import java.awt.Image;
+import java.awt.Rectangle;
+
 import entorno.Entorno;
 import entorno.Herramientas;
 
@@ -137,8 +139,7 @@ public class Princesa {
 	}
 
     //metodos
-
-    public boolean paradaSobreIsla(Isla isla) {
+	public boolean paradaSobreIsla(Isla isla) {
         double misPies = this.y + (this.alto / 2);
         double techoIsla = isla.getY() - (isla.getAlto() / 2);
 
@@ -179,8 +180,6 @@ public class Princesa {
 		}
     }
     
-    
-    
     public void saltar() {
     	if(tocandoElSuelo) {
     		this.velocidadY = potenciaSalto;
@@ -204,7 +203,6 @@ public class Princesa {
     }
     
     public void disparar(double mouseX, double mouseY, boolean especial) {
-
         if (disparo == null) {
             disparo = new Disparo(this.x, this.y - 10, mouseX, mouseY, especial);
         }
