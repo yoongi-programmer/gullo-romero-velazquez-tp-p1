@@ -106,7 +106,18 @@ public class Juego extends InterfaceJuego {
         }
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
-    
+    public void reiniciarJuego(double x, double y) {
+    	this.xMapa = x;
+		this.yMapa = y;
+		this.islas = new Isla[30];
+		this.enemigo = new Enemigos[10];
+		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
+        double anchoFondo = this.imagen.getWidth(null) * 0.8;
+		this.xMapa = anchoFondo / 2;
+		this.yMapa = 250;
+		inicializarPiso();
+		generarIslasFlotantes();
+    }
     //--------------------------------------------------------------------- Estado interno del juego
 	public void tick() {	
 		if(this.princesa.getVidas()>0 && this.ganar==0) {
@@ -173,7 +184,6 @@ public class Juego extends InterfaceJuego {
 			        disparosEspeciales--;
 			        if (disparosEspeciales <= 0) {
 			            tienePoder = false;
-
 			        }
 			    }
 			}
@@ -204,21 +214,17 @@ public class Juego extends InterfaceJuego {
 				}
 			
 			//DIBUJAR TODO-----------------------------------------------------------
-			this.dibujar(this.entorno);		//fondo	
-			
+			this.dibujar(this.entorno);		//fondo				
 			//----------------------------------------------- Dibujar islas
 			for(int i = 0; i < this.islas.length; i++) {
 				if(this.islas[i] != null) {
 					this.islas[i].dibujar(this.entorno);
 				}
 			}
-			
 			//----------------------------------------------- Dibujar princesa
-			princesa.dibujarse(this.entorno);
-			
+			princesa.dibujarse(this.entorno);			
 			// ---------------------------------------------- Dibujar disparo
 			princesa.dibujarDisparo(entorno);
-								
 			//----------------------------------------------- Dibujar enemigos
 			for (int i = 0; i < enemigo.length; i++) {
 			    if (enemigo[i] != null) {
@@ -233,15 +239,13 @@ public class Juego extends InterfaceJuego {
 			        	    enemigo[i] = null;
 			        	    princesa.eliminarDisparo();
 			        	    continue;
-			        	}
-			        
+			        	}			        
 			        //COLISION PRINCSA
 			        if (enemigo[i].colisionaConPrincesa(princesa)) {
 			            princesa.setVidas(princesa.getVidas() - 1);
 			            enemigo[i] = null;
 			            continue;
 			        }
-
 			        // FUERA DE PANTALLA
 			        if (enemigo[i].fueraDePantalla()) {
 			            enemigo[i] = null;
@@ -258,9 +262,17 @@ public class Juego extends InterfaceJuego {
 		}else {
 			
 			if(this.ganar==1) {
-				System.out.println("Gano");		//aca va la pantalla de gano
+				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
+				entorno.escribirTexto("GANASTE", 350, 250);
+				
 			}else if(this.princesa.getVidas()==0) {
-				System.out.println("Perdio");	//aca va la pantalla de perdio
+				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
+				entorno.escribirTexto("PERDISTE", 350, 250);
+				entorno.cambiarFont("Calibri", 30, textoColor, entorno.NEGRITA);
+				entorno.escribirTexto("Presiona la tecla 'R' para volver a jugar", 250, 350);
+				if (this.entorno.estaPresionada('R')) {
+					this.reiniciarJuego(1000, 250);
+				}
 			}
 		}
 	}
