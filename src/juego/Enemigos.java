@@ -88,11 +88,7 @@ public class Enemigos {
 				return;
 			}
 		}
-		if (vaDerecha) {
-			x += velocidad;
-		} else {
-			x -= velocidad;
-		}
+		
 		// animación
 		contadorAnimacion++;
 		if (contadorAnimacion >= 10) {
@@ -101,13 +97,6 @@ public class Enemigos {
 		}
 	}
 		
-	public void moverConMapaIzquierda() {
-	    this.x -= 3;
-	}
-	
-	public void moverConMapaDerecha() {
-	    this.x += 3;
-	}
 
 	public boolean colisionDisparoEnemigo(Disparo disparo) {
 		double radioDisparo = disparo.getDiametro() / 2.0;
@@ -165,5 +154,13 @@ public class Enemigos {
 
 	public int getAlto() {
 		return alto;
+	}
+	
+	public boolean getVaDerecha() {
+		return vaDerecha;
+	}
+	
+	public double setX(double x) {
+		return this.x = x;
 	}
 }
