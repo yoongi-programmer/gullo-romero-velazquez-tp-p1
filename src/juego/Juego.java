@@ -87,18 +87,17 @@ public class Juego extends InterfaceJuego {
                 this.islas[i].moverIslas(direccion);
             }
         }
-        /*
+     //Movemos los enemigos junto con el mapa
         for (int i = 0; i < enemigo.length; i++) {
             if (enemigo[i] != null) {
-                if (direccion < 0) {
-                    enemigo[i].setX(enemigo[i].getX() -3) ;
-                }
-                if (direccion > 0) {
-                    enemigo[i].setX(enemigo[i].getX() +3) ;
-                }
+                enemigo[i].setX(enemigo[i].getX() + direccion); 
             }
         }   
-        */
+
+        //Movemos el orbe de poder con el mapa
+        if (this.poder != null) {
+            this.poder.setX(this.poder.getX() + direccion);
+        }
 
      // Movemos el castillo junto con el mapa
         if (this.castillo != null) {
