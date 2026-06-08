@@ -14,6 +14,8 @@ public class Disparo {
 
     // Tamaño del disparo
     private double diametro = 20;
+    
+    private double angulo;
 
     // Imagen del disparo normal
     private Image imagen;
@@ -39,11 +41,11 @@ public class Disparo {
         this.especial = especial;
 
         // Calcula el ángulo entre el origen y el destino
-        double angulo = Math.atan2(destinoY - y, destinoX - x);
+        this.angulo = Math.atan2(destinoY - y, destinoX - x);
 
         // Calcula la velocidad en X e Y según el ángulo
-        velocidadX = Math.cos(angulo) * 8;
-        velocidadY = Math.sin(angulo) * 8;
+        velocidadX = Math.cos(this.angulo) * 8;
+        velocidadY = Math.sin(this.angulo) * 8;
 
         // Carga las imágenes correspondientes
         if (especial) {
@@ -78,11 +80,11 @@ public class Disparo {
 
         // Si tiene frames, es un disparo especial
         if (frames != null) {
-            e.dibujarImagen(frames[frameActual], x, y, 0, 1);
+        	e.dibujarImagen(frames[frameActual], x, y, angulo, 1);
 
         } else {
             // Dibuja el disparo normal
-            e.dibujarImagen(imagen, x, y, 0, 0.2);
+        	e.dibujarImagen(imagen, x, y, angulo, 0.2);
         }
     }
 
