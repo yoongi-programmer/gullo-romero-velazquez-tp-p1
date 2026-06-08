@@ -12,6 +12,7 @@ public class Princesa {
  	private Image[] framesIzquierda;
  	private Image[] framesDerecha;
  	
+ // Referencia al disparo actual de la princesa
  	private Disparo disparo;
 
  	private int frameActual;
@@ -90,9 +91,11 @@ public class Princesa {
     	return potenciaSalto;
     }
 
-	public Disparo getDisparo() {
-	    return disparo;
-	}
+ // Devuelve el disparo activo de la princesa
+    public Disparo getDisparo() {
+        return disparo;
+    }
+    
     //  --- Setters --- 
     
     public void setX(double x) {
@@ -203,40 +206,54 @@ public class Princesa {
     	this.y+=this.gravedad;
     }
     
-    public void disparar(double mouseX, double mouseY, boolean especial) {
-
-        if (disparo == null) {
-            disparo = new Disparo(this.x, this.y - 10, mouseX, mouseY, especial);
-        }
-    }
+ // Crea un nuevo disparo en la posición de la princesa
+ // apuntando hacia la posición del mouse.
+ // Solo permite un disparo activo a la vez.
+	 public void disparar(double mouseX, double mouseY, boolean especial) {
+	     if (disparo == null) {
+	         disparo = new Disparo(this.x, this.y - 10, mouseX, mouseY, especial);
+	     }
+	 }
     
-    public void actualizarDisparo(Isla[] islas) {
-        if (disparo != null) {
-            disparo.mover();
-            if (disparo.estaFueraPantalla()) {
-                disparo = null;
-                return;
-            }
-
-            for (int i = 0; i < islas.length; i++) {
-                if (islas[i] != null &&
-                    disparo.colisionaConIsla(islas[i])) {
-                    disparo = null;
-                    return;
-                }
-            }
-        }
-    }
+//Actualiza el movimiento del disparo y verifica
+//si sale de la pantalla o colisiona con una isla.
+	public void actualizarDisparo(Isla[] islas) {
+	  if (disparo != null) {
+	
+	      // Mueve el disparo
+	      disparo.mover();
+	
+	      // Elimina el disparo si sale de la pantalla
+	      if (disparo.estaFueraPantalla()) {
+	          disparo = null;
+	          return;
+	      }
+	
+	      // Recorre todas las islas verificando colisiones
+	      for (int i = 0; i < islas.length; i++) {
+	
+	          // Si el disparo impacta una isla, se elimina
+	          if (islas[i] != null &&
+	              disparo.colisionaConIsla(islas[i])) {
+	
+	              disparo = null;
+	              return;
+	          }
+	      }
+	   }
+	}
     
-    public void dibujarDisparo(Entorno entorno) {
-        if (disparo != null) {
-            disparo.dibujar(entorno);
-        }
-    }
-    
-    public void eliminarDisparo() {
-        disparo = null;
-    }
+	// Dibuja el disparo en pantalla si existe
+	public void dibujarDisparo(Entorno entorno) {
+	    if (disparo != null) {
+	        disparo.dibujar(entorno);
+	    }
+	}
+	
+	// Elimina el disparo actual
+	public void eliminarDisparo() {
+	    disparo = null;
+	}
     
     public void dibujarse (Entorno e) {
     	Image imagenActual;
