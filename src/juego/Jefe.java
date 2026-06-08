@@ -91,7 +91,7 @@ public class Jefe {
         } else {
             escala = 1;
         }
-        entorno.dibujarImagen(frames[frameActual], x, y, 0, escala);
+        entorno.dibujarImagen(frames[frameActual], x, y - 33, 0, escala);
     }
 
     // Determina cuándo debe generar un nuevo disparo

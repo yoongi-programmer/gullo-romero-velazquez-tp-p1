@@ -134,6 +134,7 @@ public class Enemigos {
 			}
 		}
 
+
 		// Movimiento horizontal
 		if (vaDerecha) {
 			x += velocidad;
@@ -153,7 +154,10 @@ public class Enemigos {
             // Reinicia el contador.
             contadorAnimacion = 0;
         }
+        
 	}
+		
+
 
 	// Movimiento cuando el mapa se desplaza
 	public void moverConMapa(double direccion) {
@@ -248,5 +252,13 @@ public class Enemigos {
 
 	public int getAlto() {
 		return alto;
+	}
+	
+	public boolean getVaDerecha() {
+		return vaDerecha;
+	}
+	
+	public double setX(double x) {
+		return this.x = x;
 	}
 }
