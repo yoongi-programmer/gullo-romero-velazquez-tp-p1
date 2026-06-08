@@ -9,6 +9,8 @@ public class Poder {
     // Posición del poder en el mapa.
     private double x;
     private double y;
+    
+    private int tipo; // 0 = poder, 1 = vida
 
     // Tamaño del poder.
     private int ancho = 40;
@@ -29,16 +31,28 @@ public class Poder {
         // Guarda la posición inicial.
         this.x = x;
         this.y = y;
+        
+        // 50% de probabilidad para cada uno
+        this.tipo = (int)(Math.random() * 2);
 
         // Crea un arreglo para guardar 4 imágenes.
         frames = new Image[4];
 
-        // Carga las imágenes de la animación.
-        frames[0] = Herramientas.cargarImagen("img/orbe1.png");
-        frames[1] = Herramientas.cargarImagen("img/orbe2.png");
-        frames[2] = Herramientas.cargarImagen("img/orbe3.png");
-        frames[3] = Herramientas.cargarImagen("img/orbe3.png");
+        if (tipo == 0) {
+	        // Carga las imágenes de la animación.
+	        frames[0] = Herramientas.cargarImagen("img/orbe1.png");
+	        frames[1] = Herramientas.cargarImagen("img/orbe2.png");
+	        frames[2] = Herramientas.cargarImagen("img/orbe3.png");
+	        frames[3] = Herramientas.cargarImagen("img/orbe4.png");
 
+        } else {
+            // Vida extra
+            frames[0] = Herramientas.cargarImagen("img/cora1.png");
+            frames[1] = Herramientas.cargarImagen("img/cora2.png");
+            frames[2] = Herramientas.cargarImagen("img/cora3.png");
+            frames[3] = Herramientas.cargarImagen("img/cora4.png");
+        }
+        
         // Empieza mostrando el primer frame.
         frameActual = 0;
 
@@ -61,7 +75,15 @@ public class Poder {
         }
 
         // Dibuja la imagen actual.
-        entorno.dibujarImagen(frames[frameActual], x, y, 0, 1);
+        double escala;
+
+        if (tipo == 0) {
+            escala = 1;
+        } else {
+            escala = 2.5;
+        }
+
+        entorno.dibujarImagen(frames[frameActual], x, y, 0, escala);
     }
 
     // Detecta si la princesa tocó el poder.
@@ -90,5 +112,7 @@ public class Poder {
     public void setY(double y) {
     	this.y = y;
     }
-
+    public int getTipo() {
+        return tipo;
+    }
 }

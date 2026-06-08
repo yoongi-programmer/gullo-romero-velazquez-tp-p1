@@ -360,11 +360,17 @@ public class Juego extends InterfaceJuego {
 			// Si la princesa toca el poder
 			if (poder != null && poder.colisionaConPrincesa(princesa)) {
 
-			    // Activa los disparos especiales
-			    tienePoder = true;
-
-			    // Otorga 3 disparos especiales
-			    disparosEspeciales = 3;
+				 if (poder.getTipo() == 0) {
+				    // Activa los disparos especiales
+				    tienePoder = true;
+	
+				    // Otorga 3 disparos especiales
+				    disparosEspeciales = 3;
+				    
+			     } else {
+				        // Vida extra
+				        princesa.setVidas(princesa.getVidas() + 1);
+				    }
 
 			    // Elimina el poder del mapa porque ya fue recogido
 			    poder = null;
