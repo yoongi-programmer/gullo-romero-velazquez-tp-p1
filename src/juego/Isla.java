@@ -13,13 +13,16 @@ public class Isla {
 	
 	Isla(int x, int y, int ancho, int alto) {
         this.area = new Rectangle(x - ancho/2, y - alto/2, ancho, alto);
-		this.imagen = Herramientas.cargarImagen("img/islas.png");
+        Image imagenOriginal = Herramientas.cargarImagen("img/islas.png");
+        
+        // 2. Escalamos/estiramos la imagen para que mida EXACTAMENTE "ancho" x "alto"
+        this.imagen = imagenOriginal.getScaledInstance(ancho, alto, Image.SCALE_DEFAULT);
 	}
 	
 	public void dibujar(Entorno e) {
         // Pide: x, y, ancho, alto, ángulo, color
-		//e.dibujarImagen(this.imagen, this.area.x + this.area.width/2, this.area.y + this.area.height/2, 0, 0.5);
-		e.dibujarRectangulo(this.area.x + this.area.width/2, this.area.y + this.area.height/2, this.area.width, this.area.height, 0, Color.green);
+		e.dibujarImagen(this.imagen, this.area.x + this.area.width/2, this.area.y + this.area.height/2, 0, 1.0);
+		//e.dibujarRectangulo(this.area.x + this.area.width/2, this.area.y + this.area.height/2, this.area.width, this.area.height, 0, Color.green);
     }
 	
 	public void moverIslas(double dir) {
