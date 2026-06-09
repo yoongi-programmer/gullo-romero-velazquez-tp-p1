@@ -13,8 +13,7 @@ public class ReproductorDeAudio {
 				clip.stop(); 
 			}
 			
-			// Truco para buscar en raíz o dentro de src/ automáticamente
-			File archivo = new File(ruta);
+			File archivo = new File(ruta);			// busco dentro del src por las dudas
 			if (!archivo.exists()) {
 			    archivo = new File("src/" + ruta);
 			}

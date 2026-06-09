@@ -7,23 +7,16 @@ public class Princesa {
     private double x, y, ancho, alto, velocidad;
     private int vidas;
     private boolean mirandoDerecha = true;
-    
-    // Animación
- 	private Image[] framesIzquierda;
+ 	private Image[] framesIzquierda;    	// Animación
  	private Image[] framesDerecha;
  	private int frameActual;
  	private int contadorAnimacion;
- 	
-    //Referencia al disparo actual de la princesa
  	private Disparo disparo;
-
- 	//salto
- 	private boolean tocandoElSuelo;
+ 	private boolean tocandoElSuelo; 		//salto
  	private double gravedad;
  	private double velocidadY;
  	private double potenciaSalto;
 
-    //  --- Constructor ---
     public Princesa (double x, double y, double ancho, double alto, double velocidad, int vidas) {
         this.x = x;
         this.y = y;
@@ -56,77 +49,59 @@ public class Princesa {
     public double getX() {
     	return this.x;
     }
-    
     public double getY() {
     	return this.y;
-    }
-    
+    }    
     public double getAncho() {
     	return this.ancho;
-    }
-    
+    }    
     public double getAlto() {
     	return this.alto;
-    }
-    
+    }    
     public double getVelocidad() {
     	return this.velocidad;
     }
 	public int getVidas() {
 		return vidas;
 	}
-
     public boolean getEstaMirandoDerecha() {
     	return mirandoDerecha;
-    }
-    
+    }    
     public boolean getTcandoElSUelo() {
     	return tocandoElSuelo;
-    }
-    
+    }    
     public double getVelocidadY() {
     	return velocidadY;
-    }
-    
+    }    
     public double getPotenciaSalto() {
     	return potenciaSalto;
     }
-
- // Devuelve el disparo activo de la princesa
     public Disparo getDisparo() {
         return disparo;
     }
     
-    //  --- Setters --- 
-    
+    //  -------------- Setters -------------------     
     public void setX(double x) {
     	this.x = x;
     }
-    
     public void setY(double y) {
     	this.y = y;
-    }
-    
+    }    
     public void setAncho(double ancho) {
     	this.ancho = ancho;
-    }
-    
+    }    
     public void setAlto(double alto) {
     	this.alto = alto;
-    }
-    
+    }    
     public void setVelocidad(double velocidad) {
     	this.velocidad = velocidad;
-    }
-    
+    }    
 	public void setVidas(int vidas) {
 		this.vidas = vidas;
-	} 
-	
+	} 	
 	public void setTocandoElSuelo(boolean tocandoSuelo) {
 		this.tocandoElSuelo = tocandoSuelo; 
-	}
-	
+	}	
 	public void setVelocidadY(double velocidadY) {
 		this.velocidadY = velocidadY;
 	}
@@ -136,6 +111,7 @@ public class Princesa {
 	public void setGravedad (double gravedad) {
 		this.gravedad = gravedad;
 	}
+	
 	public void desacelerarY (double cantidad) {
 		this.y += cantidad;
 	}
@@ -152,9 +128,7 @@ public class Princesa {
 
         boolean alineadaEnX = (miBordeDer >= islaIzq) && (miBordeIzq <= islaDer);
         boolean tocandoTecho = (misPies >= techoIsla - 10) && (misPies <= techoIsla + this.velocidadY + 10);// Le sumamos su propia velocidadY al margen para que la red de detección sea tan grande como la velocidad de su caída. 
-
-        // Agregamos (this.velocidadY >= 0) para asegurarnos de que SOLO se pare en la isla si está cayendo hacia abajo.
-        return alineadaEnX && tocandoTecho && (this.velocidadY >= 0);
+        return alineadaEnX && tocandoTecho && (this.velocidadY >= 0);	// solo cuando cae
     }
     
     public boolean chocaCabezaConIsla (Isla isla){
@@ -166,12 +140,8 @@ public class Princesa {
         double islaIzq = isla.getX() - (isla.getAncho() / 2);
         double islaDer = isla.getX() + (isla.getAncho() / 2);
 
-        // verifica la alineacion en x
-        boolean alineadaEnX = (miBordeDer >= islaIzq +12) && (miBordeIzq <= islaDer -12);
-        
-        // verifica la colision con el fondo de la isla (pequeño margen)
-        boolean tocandoFondo = (miCabeza <= fondoIsla + 5) && (miCabeza >= fondoIsla - 5);
-
+        boolean alineadaEnX = (miBordeDer >= islaIzq +12) && (miBordeIzq <= islaDer -12);        // verifica la alineacion en x      
+        boolean tocandoFondo = (miCabeza <= fondoIsla + 5) && (miCabeza >= fondoIsla - 5);        // verifica la colision con el fondo de la isla (pequeño margen)
         return alineadaEnX && tocandoFondo;
     }
     
@@ -180,15 +150,12 @@ public class Princesa {
         double miBordeDer = this.x + (this.ancho / 2);
         double miCabeza = this.y - (this.alto / 2) - 18;
         double misPies = this.y + (this.alto / 2) - 18;
-
         // Bordes de la isla
         double islaIzq = isla.getX() - (isla.getAncho() / 2);
         double techoIsla = isla.getY() - (isla.getAlto() / 2);
         double fondoIsla = isla.getY() + (isla.getAlto() / 2);
-
         //verifica la alineacion en Y con un margen para pisar y chocar cabeza,tambien verifica que los pies hayan pasado el borde inferior de la isla
-        boolean alineadaEnY = (misPies > techoIsla + 4) && (miCabeza < fondoIsla - 4) && (misPies <= fondoIsla);
-        
+        boolean alineadaEnY = (misPies > techoIsla + 4) && (miCabeza < fondoIsla - 4) && (misPies <= fondoIsla);        
         //verifica que su lado derecho atraviese el lado izquierdo de la isla
         boolean cruzandoPared = (miBordeDer >= islaIzq) && (this.x < isla.getX());
 
@@ -200,27 +167,22 @@ public class Princesa {
         double miBordeIzq = this.x - (this.ancho / 2);
         double miCabeza = this.y - (this.alto / 2) - 18;
         double misPies = this.y + (this.alto / 2) - 18;
-
         // Bordes de la isla
         double islaDer = isla.getX() + (isla.getAncho() / 2);
         double techoIsla = isla.getY() - (isla.getAlto() / 2);
         double fondoIsla = isla.getY() + (isla.getAlto() / 2);
-
         // Alineacion en Y (mismas condiciones que lado derecho)
         boolean alineadaEnY = (misPies > techoIsla) && (miCabeza < fondoIsla) && (misPies <= fondoIsla);
-
         //Comrpuebo si su lado izquierdo cruza la pared derecha de la isla pero su centro todavia no.
         boolean cruzandoPared = (miBordeIzq <= islaDer) && (this.x > isla.getX());
 
         return alineadaEnY && cruzandoPared;
     }
     
-    //bandera para saber hacia donde mira la princesa
-    public boolean estaMirandoDerecha() {
+    public boolean estaMirandoDerecha() {    //bandera para saber hacia donde mira la princesa
     	return mirandoDerecha;
     }
     
-    //metodo para moverse que actualiza la animacion
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;
@@ -232,7 +194,6 @@ public class Princesa {
 		}
     }
     
-    //metodo para moverse que actualiza la animacion
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
     	this.mirandoDerecha = false;
@@ -244,17 +205,14 @@ public class Princesa {
 		}
     }
     
-    
-    //méotodo de salto que modifica la velocidad vertical de la Princesa
-    public void saltar() {
+    public void saltar() {					//méotodo de salto que modifica la velocidad vertical de la Princesa
     	if(tocandoElSuelo) {
     		this.velocidadY = potenciaSalto;
     		this.tocandoElSuelo = false;
     		}
     }
     
-    //método que modifica gradualmente la fisica del salto para hacerlo fluido
-    public void modificarFisica() {
+    public void modificarFisica() {			//método que modifica gradualmente la fisica del salto para hacerlo fluido
     	if(!tocandoElSuelo) {
     		this.y += this.velocidadY;
         	this.velocidadY += this.gravedad;       	
@@ -265,16 +223,6 @@ public class Princesa {
     	
     }
     
-    
-    //le da gravedad a la princesa
-    public void moverseAbajo() {
-    	this.y+=this.gravedad;
-    }
-    
-
- // Crea un nuevo disparo en la posición de la princesa
- // apuntando hacia la posición del mouse.
- // Solo permite un disparo activo a la vez.
     public void disparar(double mouseX, double mouseY, boolean especial) {
         if (disparo == null) {
             disparo = new Disparo(this.x, this.y - 10, mouseX, mouseY, especial);
@@ -282,27 +230,16 @@ public class Princesa {
     }
 
     
-//Actualiza el movimiento del disparo y verifica
-//si sale de la pantalla o colisiona con una isla.
+    //Actualiza el movimiento del disparo y verifica si sale de la pantalla o colisiona con una isla.
 	public void actualizarDisparo(Isla[] islas) {
 	  if (disparo != null) {
-	
-	      // Mueve el disparo
 	      disparo.mover();
-	
-	      // Elimina el disparo si sale de la pantalla
-	      if (disparo.estaFueraPantalla()) {
+	      if (disparo.estaFueraPantalla()) {	      // Elimina el disparo si sale de la pantalla
 	          disparo = null;
 	          return;
 	      }
-	
-	      // Recorre todas las islas verificando colisiones
-	      for (int i = 0; i < islas.length; i++) {
-	
-	          // Si el disparo impacta una isla, se elimina
-	          if (islas[i] != null &&
-	              disparo.colisionaConIsla(islas[i])) {
-	
+	      for (int i = 0; i < islas.length; i++) {	
+	          if (islas[i] != null && disparo.colisionaConIsla(islas[i])) {	          // Si el disparo impacta una isla, se elimina
 	              disparo = null;
 	              return;
 	          }
@@ -310,21 +247,17 @@ public class Princesa {
 	   }
 	}
     
-	// Dibuja el disparo en pantalla si existe
-	public void dibujarDisparo(Entorno entorno) {
+	public void dibujarDisparo(Entorno entorno) {	// Dibuja el disparo en pantalla si existe
 	    if (disparo != null) {
 	        disparo.dibujar(entorno);
 	    }
 	}
 	
-	// Elimina el disparo actual
 	public void eliminarDisparo() {
 	    disparo = null;
 	}
-	
-	
-	//dibuja a la princesa con un pequeño ajuste para arreglar la superposición de la imagen con el suelo
-    public void dibujarse (Entorno e) {
+		
+    public void dibujarse (Entorno e) {				//dibuja a la princesa con un pequeño ajuste para arreglar la superposición de la imagen con el suelo
     	Image imagenActual;
 		if (this.mirandoDerecha) {
 			imagenActual = framesDerecha[frameActual];
