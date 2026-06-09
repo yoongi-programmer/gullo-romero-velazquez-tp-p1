@@ -286,7 +286,6 @@ public class Juego extends InterfaceJuego {
 					// Al hacer clic izquierdo se crea un disparo hacia el mouse
 					if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
 					    princesa.disparar(entorno.mouseX(), entorno.mouseY(), tienePoder);
-
 					    // Si el poder está activo, consume un disparo especial
 					    if (tienePoder) {
 					        disparosEspeciales--;
@@ -405,7 +404,8 @@ public class Juego extends InterfaceJuego {
 					        enemigo[i].dibujar(entorno);
 
 					        // ===== COLISIÓN DISPARO - ENEMIGO =====
-					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {					          
+					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
+					        	Herramientas.play("music/disparo.wav");
 					            Poder nuevoPoder = enemigo[i].generarPoder();				// Puede generar un poder al morir
 					            if (nuevoPoder != null && poder == null && !tienePoder) { 	// Solo aparece un poder si no existe otro activo
 					                poder = nuevoPoder;
