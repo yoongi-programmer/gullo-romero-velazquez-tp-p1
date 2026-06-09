@@ -25,13 +25,10 @@ public class Castillo {
     }
 
     // El castillo también debe moverse hacia atrás cuando el mapa hace scroll
-    public void moverIzquierda(double velocidad) {
+    public void mover(double velocidad) {
         this.x += velocidad; // "velocidad" vendrá en negativo desde Juego
     }
     
-    public void moverDerecha(double velocidad) {
-        this.x += velocidad; // "velocidad" vendrá en positivo desde Juego
-    }
 
     // Colisión idéntica a la de los enemigos
     public boolean colisionaConPrincesa(Princesa p) {

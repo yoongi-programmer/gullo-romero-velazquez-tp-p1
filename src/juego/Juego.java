@@ -1,8 +1,8 @@
 package juego;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.util.concurrent.ThreadLocalRandom;
+
 import entorno.Entorno;
 import entorno.Herramientas;
 import entorno.InterfaceJuego;
@@ -16,38 +16,66 @@ public class Juego extends InterfaceJuego {
 	private Poder poder;
 	private Castillo castillo; // Reemplazá el "private Image castillo;" por esto
 	private boolean tienePoder = false;
+	boolean tocandoElPiso;
 	private int disparosEspeciales = 0;	
 	private int ganar;
-	
+	private int estadoActual;
+    private ReproductorDeAudio reproductor; 
 	private double xMapa;
 	private double yMapa;
 	
-	private Image fondo; 
-	boolean tocandoElPiso;
+	private Image fondo;
+	private Image imgMenu;
+	private Image imgGanar;
+	private Image imgPerder;
+	private Image imgPausa;
+	
+	private final int ESTADO_MENU =0;
+	private final int ESTADO_JUGANDO = 1;
+    private final int ESTADO_PAUSA = 2;
+    private final int ESTADO_GANO = 3;
+    private final int ESTADO_PERDIO = 4;
+    //private ReproductorDeAudio reproductorMusica;
+    
+    // 2. Centinelas para la música
+    private boolean musicaMenuSonando = false;
+    private boolean musicaJuegoSonando = false;
+    private boolean musicaPausaSonando = false;
+    private boolean musicaGanoSonando = false;
+    private boolean musicaPerdioSonando = false;
 	Color textoColor = new Color (213, 231, 247);	
 	
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
 		this.entorno = new Entorno(this, "Proyecto para TP", 1000, 500);
-		this.ganar = 0;
-		this.xMapa = x;
-		this.yMapa = y;
-		this.islas = new Isla[30];
-		this.enemigo = new Enemigos[10];
-		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)
         this.fondo = Herramientas.cargarImagen("img/fondo.png");  
-        double anchoFondo = this.fondo.getWidth(null) * 0.8;
-        this.castillo = new Castillo(anchoFondo - 100, 360);
-		this.xMapa = anchoFondo / 2;
-		this.yMapa = 250;
+		this.imgMenu= Herramientas.cargarImagen("img/menu.png");
+		this.imgPausa= Herramientas.cargarImagen("img/pausa.png");
+		this.imgGanar = Herramientas.cargarImagen("img/ganar.png");
+		this.imgPerder = Herramientas.cargarImagen("img/perder.png");
+		this.estadoActual = ESTADO_MENU;
+		this.reproductor = new ReproductorDeAudio();
 		this.entorno.iniciar(); // Inicia el juego!
-		inicializarPiso();
-		generarIslasFlotantes();
 	}
 	
 	//METODOS DE COMPORTAMIENTO---------------------------------------------------------------------------
-    public void dibujar(Entorno e) {
-        e.dibujarImagen(this.fondo, this.xMapa, this.yMapa, 0, 0.8); //(imagen, coordenada X, coordenada Y, ángulo, escala)
+    public void dibujar(Entorno e, Image img, double x, double y, double esc) {
+        e.dibujarImagen(img, x, y, 0, esc); //(imagen, coordenada X, coordenada Y, ángulo, escala)
+    }
+    public void pantallaMenu(Entorno e) {
+    	this.dibujar(this.entorno, this.imgMenu,500,250, 0.3);		//fondo
+    	if (this.entorno.estaPresionada(this.entorno.TECLA_ENTER)) {
+            reiniciarJuego(); 
+            this.estadoActual = ESTADO_JUGANDO;
+            this.musicaMenuSonando = false;
+        }
+    }
+    public void pantallaPausa(Entorno e) {
+    	this.dibujar(this.entorno, this.imgPausa,500,250, 0.3);		//fondo
+    	if (this.entorno.sePresiono('R') || this.entorno.sePresiono('r')) {
+            this.estadoActual = ESTADO_MENU;
+            this.musicaPausaSonando = false; // reseteamos
+        }
     }
     
     //--------------------------------------------------------------------- Mapa
@@ -60,7 +88,6 @@ public class Juego extends InterfaceJuego {
 			posX = posX + anchoIsla + separacion; // sumando el ancho de la isla que acabamos de crear + el hueco 
 		} 			
 	}
-    
     private void generarIslasFlotantes() {
     	int posX=500;
     	int posYAnterior = 320;
@@ -78,13 +105,12 @@ public class Juego extends InterfaceJuego {
             }          
 			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
 			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
-			if(posX>anchoFondo-200) {
+			if(posX>anchoFondo-250) {
 				return;
 			}
 			posYAnterior = nuevoY;
 		}
     }
-    
     public void moverMapa(double direccion) {
         for (int i = 0; i < this.islas.length; i++) {
             if (this.islas[i] != null) {
@@ -105,23 +131,18 @@ public class Juego extends InterfaceJuego {
 
      // Movemos el castillo junto con el mapa
         if (this.castillo != null) {
-            if (direccion < 0) {
-                this.castillo.moverIzquierda(direccion);
-            } else {
-                this.castillo.moverDerecha(direccion);
-            }
+        	this.castillo.mover(direccion);
         }
         this.xMapa+=direccion; //Muevo el fondo tambien
     }
+    //--------------------------------------------------------------------- Musica
     
-    
-    public void reiniciarJuego(double x, double y) {
+	
+    public void reiniciarJuego() {
     	this.ganar = 0;
     	this.tienePoder = false;
     	this.disparosEspeciales = 0;
     	this.poder = null;
-    	this.xMapa = x;
-		this.yMapa = y;
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
@@ -133,212 +154,273 @@ public class Juego extends InterfaceJuego {
 		generarIslasFlotantes();
     }
     //--------------------------------------------------------------------- Estado interno del juego
-	public void tick() {	
-		if(this.princesa.getVidas()>0 && this.ganar==0) {
-			boolean tocandoElPiso = false;
-			//Comprobar si está parada sobre una isla
-			for(int i = 0; i < this.islas.length; i++) {
-	            if(this.islas[i] != null) {
-	                if (this.princesa.paradaSobreIsla(this.islas[i])) {
-	                    tocandoElPiso = true;
-	                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );    
-	                }
-	                //Comprobar si choca la cabeza con el borde inferior de una isla
-		            if (this.princesa.getVelocidadY() < 0 && this.princesa.chocaCabezaConIsla(this.islas[i])) {
-		                this.princesa.setY(this.islas[i].getY() + (this.islas[i].getAlto() / 2) + (this.princesa.getAlto() / 2) + 18); //seteo Y para que choque
-		                this.princesa.setVelocidadY(1); 
-		            }
-		            // Comprobar si choca con lado derecho
-	                if (this.princesa.chocaLadoDerechoConIsla(this.islas[i])) {
-	                	if (this.princesa.getX() < 500) { 
-	                		this.princesa.setX(this.islas[i].getX() - (this.islas[i].getAncho() / 2) - (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
-	                	} else {
-	                		// pongo lado inverso para cancelar el scroll de pantalla
-	                		moverMapa(2); 
-	                	}
-	                }
-	                //Comprobar si choca con lado izquierdo
-	                if (this.princesa.chocaLadoIzquierdoConIsla(this.islas[i])) {
-	                	if (this.princesa.getX() > 500) {
-	                		this.princesa.setX(this.islas[i].getX() + (this.islas[i].getAncho() / 2) + (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
-	                	} else {
-	                		// pongo el lado inverso para cancelar scroll de pantalla
-	                		moverMapa(-2);
-	                	}
-	                }
-	            }
-			}
-			
-			this.princesa.setTocandoElSuelo(tocandoElPiso);
-			
-			if (this.entorno.estaPresionada(this.entorno.TECLA_ARRIBA) || this.entorno.estaPresionada('w')) {
-				this.princesa.saltar();
-			}
-			this.princesa.modificarFisica();
-
-			// Control del movimiento de la Princesa----------------------------------
-			if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('D')) {
-			    if (this.princesa.getX() < 500) {
-			        this.princesa.moverseDerecha();
-			    } else {
-			    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
-			        // Permite scrollear hasta que el borde derecho de la imagen llegue al borde derecho de la pantalla (1000)
-			        if (this.xMapa + (anchoFondo / 2) > 1000) {
-			            moverMapa(-2);
-			            this.princesa.setMirandoDerecha(true);
-			        } else if (this.princesa.getX() < 1000) {
-			            this.princesa.moverseDerecha();
-			        }
-			    }
-			}
-
-			if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('A')) {
-			    if (this.princesa.getX() > 500) {
-			        this.princesa.moverseIzquierda();
-			    } else {
-			    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
-			        if (this.xMapa - (anchoFondo / 2) < 0) {
-			            moverMapa(2);
-			            this.princesa.setMirandoDerecha(false);
-			        } else if (this.princesa.getX() > 0) {
-			            this.princesa.moverseIzquierda();
-			        }
-			    }
-			}
-
-			//Devuelve a la princesa a la isla si cayó al vacio
-			if (princesa.getY() > 500 ) {
-				princesa.setVidas(princesa.getVidas()-1);
-				princesa.setX(princesa.getX() - 80);
-				princesa.setY(450);
-			}
-			
-			// ENEMIGOS Y DISPAROS---------------------------------------------------
-			
-		       for (int i = 0; i < enemigo.length; i++) {
-		            if (enemigo[i] != null) {
-		                if (!enemigo[i].getVaDerecha() ) {
-		                    enemigo[i].setX(enemigo[i].getX() -3) ;
-		                }
-		                else if(enemigo[i].getVaDerecha()) {
-		                    enemigo[i].setX(enemigo[i].getX() +3) ;
-		                }
-		            }
-		        }  
-		       
-			
-			
-			if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-			    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
-			    if (tienePoder) {
-			        disparosEspeciales--;
-			        if (disparosEspeciales <= 0) {
-			            tienePoder = false;
-			        }
-			    }
-			}
-			princesa.actualizarDisparo(islas);
+	public void tick() {
+		if (this.entorno.sePresiono('K') || this.entorno.sePresiono('k')) {
+            if (this.estadoActual == ESTADO_JUGANDO) {
+                this.estadoActual = ESTADO_PAUSA;
+                this.musicaJuegoSonando = false;
+            } else if (this.estadoActual == ESTADO_PAUSA) {
+                this.estadoActual = ESTADO_JUGANDO;
+                this.musicaPausaSonando = false;
+            }
+        }
 		
-			// Mantener mínimo 3 enemigos
-			int vivos = 0;
-			for (int i = 0; i < enemigo.length; i++) {
-				if (enemigo[i] != null) {
-					vivos++;
-				}
-			}
-	
-			while (vivos < 3) {
-				for (int i = 0; i < enemigo.length; i++) {
-					if (enemigo[i] == null) {
-						enemigo[i] = Enemigos.generarEnemigo(islas, princesa, enemigo);
-						vivos++;
-						break;
+		switch (this.estadoActual) {
+			case ESTADO_MENU:
+				if (!musicaMenuSonando) {
+			        this.reproductor.reproducirMusica("music/menu.wav");
+			        musicaMenuSonando = true;
+			        musicaJuegoSonando = false;
+			        musicaPausaSonando = false;
+			        musicaGanoSonando = false;
+			        musicaPerdioSonando = false;
+			    }
+				this.pantallaMenu(this.entorno);
+				break;
+			case ESTADO_PAUSA:
+				if (!musicaPausaSonando) {
+					this.reproductor.reproducirMusica("music/pausa.wav");
+			        musicaPausaSonando = true;
+			    }
+				this.pantallaPausa(this.entorno);
+				break;
+			case ESTADO_JUGANDO:
+				if (!musicaJuegoSonando) {
+					this.reproductor.reproducirMusica("music/juego.wav");
+			        musicaJuegoSonando = true;
+			        musicaMenuSonando = false;
+			        musicaPausaSonando = false;
+			        musicaGanoSonando = false;
+			        musicaPerdioSonando = false;
+			    }
+				
+				if(this.princesa.getVidas()>0 && this.ganar==0) {
+					boolean tocandoElPiso = false;
+					//Comprobar si está parada sobre una isla
+					for(int i = 0; i < this.islas.length; i++) {
+			            if(this.islas[i] != null) {
+			                if (this.princesa.paradaSobreIsla(this.islas[i])) {
+			                    tocandoElPiso = true;
+			                    this.princesa.setY( this.islas[i].getY() - (this.islas[i].getAlto()/2) - (this.princesa.getAlto()/2) );    
+			                }
+			                //Comprobar si choca la cabeza con el borde inferior de una isla
+				            if (this.princesa.getVelocidadY() < 0 && this.princesa.chocaCabezaConIsla(this.islas[i])) {
+				                this.princesa.setY(this.islas[i].getY() + (this.islas[i].getAlto() / 2) + (this.princesa.getAlto() / 2) + 18); //seteo Y para que choque
+				                this.princesa.setVelocidadY(1); 
+				                Herramientas.play("music/colision.wav");
+				            }
+				            // Comprobar si choca con lado derecho
+			                if (this.princesa.chocaLadoDerechoConIsla(this.islas[i])) {
+			                	if (this.princesa.getX() < 500) { 
+			                		this.princesa.setX(this.islas[i].getX() - (this.islas[i].getAncho() / 2) - (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+			                	} else {
+			                		// pongo lado inverso para cancelar el scroll de pantalla
+			                		moverMapa(2); 
+			                	}
+			                }
+			                //Comprobar si choca con lado izquierdo
+			                if (this.princesa.chocaLadoIzquierdoConIsla(this.islas[i])) {
+			                	if (this.princesa.getX() > 500) {
+			                		this.princesa.setX(this.islas[i].getX() + (this.islas[i].getAncho() / 2) + (this.princesa.getAncho() / 2)); //le seteo el X para que no camine por la isla
+			                	} else {
+			                		// pongo el lado inverso para cancelar scroll de pantalla
+			                		moverMapa(-2);
+			                	}
+			                }
+			            }
+					}
+					
+					this.princesa.setTocandoElSuelo(tocandoElPiso);
+					
+					if (this.entorno.estaPresionada(this.entorno.TECLA_ARRIBA) || this.entorno.estaPresionada('w')) {
+						this.princesa.saltar();
+					}
+					this.princesa.modificarFisica();
+
+					// Control del movimiento de la Princesa----------------------------------
+					if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || entorno.estaPresionada('D')) {
+					    if (this.princesa.getX() < 500) {
+					        this.princesa.moverseDerecha();
+					    } else {
+					    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
+					        // Permite scrollear hasta que el borde derecho de la imagen llegue al borde derecho de la pantalla (1000)
+					        if (this.xMapa + (anchoFondo / 2) > 1000) {
+					            moverMapa(-2);
+					            this.princesa.setMirandoDerecha(true);
+					        } else if (this.princesa.getX() < 1000) {
+					            this.princesa.moverseDerecha();
+					        }
+					    }
+					}
+
+					if (this.entorno.estaPresionada(this.entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('A')) {
+					    if (this.princesa.getX() > 500) {
+					        this.princesa.moverseIzquierda();
+					    } else {
+					    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
+					        if (this.xMapa - (anchoFondo / 2) < 0) {
+					            moverMapa(2);
+					            this.princesa.setMirandoDerecha(false);
+					        } else if (this.princesa.getX() > 0) {
+					            this.princesa.moverseIzquierda();
+					        }
+					    }
+					}
+					if (this.entorno.estaPresionada('K')){
+						this.pantallaPausa(this.entorno);
+					}
+					//Devuelve a la princesa a la isla si cayó al vacio
+					if (princesa.getY() > 500 ) {
+						princesa.setVidas(princesa.getVidas()-1);
+						princesa.setX(princesa.getX() - 80);
+						princesa.setY(450);
+					}
+					
+					// ENEMIGOS Y DISPAROS---------------------------------------------------			
+				    for (int i = 0; i < enemigo.length; i++) {
+				        if (enemigo[i] != null) {
+				            if (!enemigo[i].getVaDerecha() ) {
+				                enemigo[i].setX(enemigo[i].getX() -3) ;
+				            }
+				            else if(enemigo[i].getVaDerecha()) {
+				                enemigo[i].setX(enemigo[i].getX() +3) ;
+				            }
+				        }
+				    }  
+					if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+						// Efecto de disparo solo si logra disparar
+					    if(princesa.getDisparo() == null) {
+					        Herramientas.play("music/disparo.wav");
+					    }
+					    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
+					    if (tienePoder) {
+					        disparosEspeciales--;
+					        if (disparosEspeciales <= 0) {
+					            tienePoder = false;
+					        }
+					    }
+					}
+					princesa.actualizarDisparo(islas);
+				
+					// Mantener mínimo 3 enemigos
+					int vivos = 0;
+					for (int i = 0; i < enemigo.length; i++) {
+						if (enemigo[i] != null) {
+							vivos++;
+						}
+					}
+			
+					while (vivos < 3) {
+						for (int i = 0; i < enemigo.length; i++) {
+							if (enemigo[i] == null) {
+								enemigo[i] = Enemigos.generarEnemigo(islas, princesa, enemigo);
+								vivos++;
+								break;
+							}
+						}
+					}
+					
+					if (poder != null) {
+						poder.setY(poder.getY()+1);
+					}
+					
+					if (poder != null && poder.colisionaConPrincesa(princesa)) {
+						    tienePoder = true;
+						    disparosEspeciales = 3;
+						    poder = null;
+						}
+					
+					//DIBUJAR TODO-----------------------------------------------------------
+					this.dibujar(this.entorno, this.fondo,this.xMapa, this.yMapa, 0.8);		//fondo
+					if (this.castillo != null) {
+					    this.castillo.dibujar(this.entorno);
+					    
+					    if (this.castillo.colisionaConPrincesa(this.princesa)) {
+					        this.ganar = 1; 
+					    }
+					}
+					//----------------------------------------------- Dibujar islas
+					for(int i = 0; i < this.islas.length; i++) {
+						if(this.islas[i] != null) {
+							this.islas[i].dibujar(this.entorno);
+						}
+					}
+					//----------------------------------------------- Dibujar princesa
+					princesa.dibujarse(this.entorno);			
+					// ---------------------------------------------- Dibujar disparo
+					princesa.dibujarDisparo(entorno);
+					//----------------------------------------------- Dibujar enemigos
+					for (int i = 0; i < enemigo.length; i++) {
+					    if (enemigo[i] != null) {
+					        enemigo[i].mover(islas);
+					        enemigo[i].dibujar(entorno);
+
+					        // COLISION DISPARO
+					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
+					        	    if (poder == null && !tienePoder) {
+					        	        poder = enemigo[i].generarPoder();
+					        	    }
+					        	    enemigo[i] = null;
+					        	    princesa.eliminarDisparo();
+					        	    continue;
+					        	}			        
+					        //COLISION PRINCSA
+					        if (enemigo[i].colisionaConPrincesa(princesa)) {
+					            princesa.setVidas(princesa.getVidas() - 1);
+					            enemigo[i] = null;
+					            continue;
+					        }
+					        // FUERA DE PANTALLA
+					        if (enemigo[i].fueraDePantalla()) {
+					            enemigo[i] = null;
+					        }
+					    }
+					}
+					
+					if (poder != null) {
+					    poder.dibujar(entorno);
+					}
+					
+					entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
+					entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
+				}else {
+					if(this.ganar==1) {
+						this.estadoActual = ESTADO_GANO;
+					}else if(this.princesa.getVidas()==0) {
+						this.estadoActual = ESTADO_PERDIO;
 					}
 				}
-			}
-			
-			if (poder != null) {
-				poder.setY(poder.getY()+1);
-			}
-			
-			if (poder != null && poder.colisionaConPrincesa(princesa)) {
-				    tienePoder = true;
-				    disparosEspeciales = 3;
-				    poder = null;
-				}
-			
-			//DIBUJAR TODO-----------------------------------------------------------
-			this.dibujar(this.entorno);		//fondo
-			if (this.castillo != null) {
-			    this.castillo.dibujar(this.entorno);
-			    
-			    if (this.castillo.colisionaConPrincesa(this.princesa)) {
-			        this.ganar = 1; 
+				break;
+			case ESTADO_GANO:
+				this.dibujar(this.entorno, this.imgGanar,500,250, 0.3);		//fondo
+				if (!musicaGanoSonando) {
+					this.reproductor.reproducirMusica("music/ganar.wav");
+			        musicaGanoSonando = true;
+			        musicaPerdioSonando = false;
+			        musicaJuegoSonando = false;
+			        musicaMenuSonando = false;
+			        musicaPausaSonando = false;
 			    }
-			}
-			//----------------------------------------------- Dibujar islas
-			for(int i = 0; i < this.islas.length; i++) {
-				if(this.islas[i] != null) {
-					this.islas[i].dibujar(this.entorno);
+		    	if (this.entorno.estaPresionada('R')) {
+		    		this.estadoActual = ESTADO_MENU;
 				}
-			}
-			//----------------------------------------------- Dibujar princesa
-			princesa.dibujarse(this.entorno);			
-			// ---------------------------------------------- Dibujar disparo
-			princesa.dibujarDisparo(entorno);
-			//----------------------------------------------- Dibujar enemigos
-			for (int i = 0; i < enemigo.length; i++) {
-			    if (enemigo[i] != null) {
-			        enemigo[i].mover(islas);
-			        enemigo[i].dibujar(entorno);
-
-			        // COLISION DISPARO
-			        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
-			        	    if (poder == null && !tienePoder) {
-			        	        poder = enemigo[i].generarPoder();
-			        	    }
-			        	    enemigo[i] = null;
-			        	    princesa.eliminarDisparo();
-			        	    continue;
-			        	}			        
-			        //COLISION PRINCSA
-			        if (enemigo[i].colisionaConPrincesa(princesa)) {
-			            princesa.setVidas(princesa.getVidas() - 1);
-			            enemigo[i] = null;
-			            continue;
-			        }
-			        // FUERA DE PANTALLA
-			        if (enemigo[i].fueraDePantalla()) {
-			            enemigo[i] = null;
-			        }
+				break;
+			case ESTADO_PERDIO:
+				this.dibujar(this.entorno, this.imgPerder,500,250, 0.3);		//fondo
+				if (!musicaPerdioSonando) {
+					this.reproductor.reproducirMusica("music/perder.wav");
+			        musicaGanoSonando = false;
+			        musicaPerdioSonando = true;
+			        musicaJuegoSonando = false;
+			        musicaMenuSonando = false;
+			        musicaPausaSonando = false;
 			    }
-			}
-			
-			if (poder != null) {
-			    poder.dibujar(entorno);
-			}
-			
-			entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
-			entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
-		}else {
-			if(this.ganar==1) {
-				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
-				entorno.escribirTexto("GANASTE", 350, 250);
-				entorno.cambiarFont("Calibri", 30, textoColor, entorno.NEGRITA);
-				entorno.escribirTexto("Presiona la tecla 'R' para volver a jugar", 250, 350);
-				if (this.entorno.estaPresionada('R')) {
-					this.reiniciarJuego(1000, 250);
+		    	if (this.entorno.estaPresionada('R')) {
+		    		this.estadoActual = ESTADO_MENU;
 				}
-			}else if(this.princesa.getVidas()==0) {
-				entorno.cambiarFont("Arial", 60, textoColor, entorno.NEGRITA);
-				entorno.escribirTexto("PERDISTE", 350, 250);
-				entorno.cambiarFont("Calibri", 30, textoColor, entorno.NEGRITA);
-				entorno.escribirTexto("Presiona la tecla 'R' para volver a jugar", 250, 350);
-				if (this.entorno.estaPresionada('R')) {
-					this.reiniciarJuego(1000, 250);
-				}
-			}
+				break;
 		}
+		
 	}
 	
 	//-----------------------------------------------------------------------MAIN
