@@ -1,5 +1,4 @@
 package juego;
-import java.awt.Color;
 import java.awt.Image;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -25,12 +24,12 @@ public class Juego extends InterfaceJuego {
     private ReproductorDeAudio reproductor; 
 	private double xMapa;
 	private double yMapa;
-	
 	private Image fondo;
 	private Image imgMenu;
 	private Image imgGanar;
 	private Image imgPerder;
 	private Image imgPausa;
+	private Image imgCorazon;
 	
 	private final int ESTADO_MENU =0;
 	private final int ESTADO_JUGANDO = 1;
@@ -43,17 +42,16 @@ public class Juego extends InterfaceJuego {
     private boolean musicaPausaSonando = false;
     private boolean musicaGanoSonando = false;
     private boolean musicaPerdioSonando = false;
-	
-	Color textoColor = new Color (213, 231, 247);	
-	
+		
 	//CONSTRUCTOR DEL JUEGO------------------------------------------------------------------------------
 	Juego(double x, double y) {
 		this.entorno = new Entorno(this, "Proyecto para TP", 1000, 500);
-        this.fondo = Herramientas.cargarImagen("img/fondo.png");  
+        this.fondo = Herramientas.cargarImagen("img/fondo2.png");  
 		this.imgMenu= Herramientas.cargarImagen("img/menu.png");
 		this.imgPausa= Herramientas.cargarImagen("img/pausa.png");
 		this.imgGanar = Herramientas.cargarImagen("img/ganar.png");
 		this.imgPerder = Herramientas.cargarImagen("img/perder.png");
+		this.imgCorazon = Herramientas.cargarImagen("img/corazon.png");
 		this.estadoActual = ESTADO_MENU;
 		this.reproductor = new ReproductorDeAudio();
 		this.entorno.iniciar(); // Inicia el juego!
@@ -65,7 +63,7 @@ public class Juego extends InterfaceJuego {
     }
     public void pantallaMenu(Entorno e) {
     	this.dibujar(this.entorno, this.imgMenu,500,250, 0.3);		//fondo
-    	if (this.entorno.estaPresionada(this.entorno.TECLA_ENTER)) {
+    	if (this.entorno.estaPresionada('S')) {
             reiniciarJuego(); 
             this.estadoActual = ESTADO_JUGANDO;
             this.musicaMenuSonando = false;
@@ -80,9 +78,17 @@ public class Juego extends InterfaceJuego {
     }
     
     //--------------------------------------------------------------------- Mapa
+    private void dibujarCorazones() {
+    	int posX = 50;
+    	int separacion = 20;
+		for(int x =0; x<this.princesa.getVidas(); x++) {
+			this.dibujar(this.entorno, this.imgCorazon, posX, 50, 2.5);		//fondo
+			posX = posX + this.imgCorazon.getWidth(null) + separacion;
+		}
+    }
     private void inicializarPiso() {
-		int posX = 100;
-		int anchoIsla = 325;
+		int posX = 180;
+		int anchoIsla = 350;
 		int separacion = 80; // El hueco para que la princesa caiga
 		for (int i = 0; i < 12; i++) {
 			this.islas[i] = new Isla(posX, 490, anchoIsla, 50);	//x, y, ancho, alto
@@ -92,7 +98,7 @@ public class Juego extends InterfaceJuego {
     private void generarIslasFlotantes() {
     	int posX=500;
     	int posYAnterior = 320;
-    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
+    	double anchoFondo = this.fondo.getWidth(null) * 0.7;
     	for (int i = 12; i < 30; i++) {
         	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
         	int variacionY = ThreadLocalRandom.current().nextInt(-100, 80);
@@ -151,10 +157,11 @@ public class Juego extends InterfaceJuego {
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
-        double anchoFondo = this.fondo.getWidth(null) * 0.8;
+        double anchoFondo = this.fondo.getWidth(null) * 0.7;
         this.castillo = new Castillo(anchoFondo - 100, 360);
 		this.xMapa = anchoFondo / 2;
 		this.yMapa = 250;
+		this.jefeInvocado = false;
 		inicializarPiso();
 		generarIslasFlotantes();
     }
@@ -248,7 +255,7 @@ public class Juego extends InterfaceJuego {
 					    if (this.princesa.getX() < 500) {
 					        this.princesa.moverseDerecha();
 					    } else {
-					    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
+					    	double anchoFondo = this.fondo.getWidth(null) * 0.7;
 					        // Permite scrollear hasta que el borde derecho de la imagen llegue al borde derecho de la pantalla (1000)
 					        if (this.xMapa + (anchoFondo / 2) > 1000) {
 					            moverMapa(-2);
@@ -263,7 +270,7 @@ public class Juego extends InterfaceJuego {
 					    if (this.princesa.getX() > 500) {
 					        this.princesa.moverseIzquierda();
 					    } else {
-					    	double anchoFondo = this.fondo.getWidth(null) * 0.8;
+					    	double anchoFondo = this.fondo.getWidth(null) * 0.7;
 					        if (this.xMapa - (anchoFondo / 2) < 0) {
 					            moverMapa(2);
 					            this.princesa.setMirandoDerecha(false);
@@ -286,6 +293,7 @@ public class Juego extends InterfaceJuego {
 					// Al hacer clic izquierdo se crea un disparo hacia el mouse
 					if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
 					    princesa.disparar(entorno.mouseX(), entorno.mouseY(), tienePoder);
+					    Herramientas.play("music/disparo.wav");
 					    // Si el poder está activo, consume un disparo especial
 					    if (tienePoder) {
 					        disparosEspeciales--;
@@ -335,8 +343,6 @@ public class Juego extends InterfaceJuego {
 					    jefeInvocado = true;			// Marca que ya fue invocado
 					}
 
-					// ================= PODER =================
-
 					// Verifica si existe un poder activo en el mapa
 					if (poder != null) {				
 					    boolean apoyado = false;		// Indica si el poder está apoyado sobre alguna isla
@@ -379,7 +385,7 @@ public class Juego extends InterfaceJuego {
 					}
 					
 					//DIBUJAR TODO-----------------------------------------------------------
-					this.dibujar(this.entorno, this.fondo,this.xMapa, this.yMapa, 0.8);		//fondo
+					this.dibujar(this.entorno, this.fondo,this.xMapa, this.yMapa, 0.7);		//fondo
 					if (this.castillo != null) {
 					    this.castillo.dibujar(this.entorno);
 					    
@@ -387,6 +393,7 @@ public class Juego extends InterfaceJuego {
 					        this.ganar = 1; 
 					    }
 					}
+					this.dibujarCorazones();
 					//----------------------------------------------- Dibujar islas
 					for(int i = 0; i < this.islas.length; i++) {
 						if(this.islas[i] != null) {
@@ -405,7 +412,7 @@ public class Juego extends InterfaceJuego {
 
 					        // ===== COLISIÓN DISPARO - ENEMIGO =====
 					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
-					        	Herramientas.play("music/disparo.wav");
+					        	Herramientas.play("music/disparo2.wav");
 					            Poder nuevoPoder = enemigo[i].generarPoder();				// Puede generar un poder al morir
 					            if (nuevoPoder != null && poder == null && !tienePoder) { 	// Solo aparece un poder si no existe otro activo
 					                poder = nuevoPoder;
@@ -476,9 +483,6 @@ public class Juego extends InterfaceJuego {
 					if (poder != null) {
 					    poder.dibujar(entorno);
 					}
-					
-					entorno.cambiarFont("Tahoma", 42, textoColor, entorno.NEGRITA);
-					entorno.escribirTexto("Vidas: " + princesa.getVidas(), 100, 30);
 				}else {
 					if(this.ganar==1) {
 						this.estadoActual = ESTADO_GANO;
@@ -497,8 +501,12 @@ public class Juego extends InterfaceJuego {
 			        musicaMenuSonando = false;
 			        musicaPausaSonando = false;
 				}
-				if (this.entorno.estaPresionada('R')) {
+				if (this.entorno.estaPresionada('M')) {
 		    		this.estadoActual = ESTADO_MENU;
+				}
+				if (this.entorno.estaPresionada('J')) {
+					reiniciarJuego(); 
+		    		this.estadoActual = ESTADO_JUGANDO;
 				}
 				break;
 			case ESTADO_PERDIO:
@@ -511,8 +519,13 @@ public class Juego extends InterfaceJuego {
 			        musicaMenuSonando = false;
 			        musicaPausaSonando = false;
 			    }
-		    	if (this.entorno.estaPresionada('R')) {
+				if (this.entorno.estaPresionada('N')) {
 		    		this.estadoActual = ESTADO_MENU;
+				}
+				if (this.entorno.estaPresionada('Y')) {
+					reiniciarJuego(); 
+		    		this.estadoActual = ESTADO_JUGANDO;
+		    		
 				}
 				break;
 		}
