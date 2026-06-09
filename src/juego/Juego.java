@@ -78,11 +78,11 @@ public class Juego extends InterfaceJuego {
             this.musicaPausaSonando = false; 
         }
     }
-    private void dibujarIndicadores(int cantidad, int posX, Image img, double escala) {
-    	int separacion = 20;
-		for(int x =0; x<cantidad; x++) {
-			this.dibujar(this.entorno, img, posX, 50, escala);		//entorno, imagen, x, y, escala
-			posX = posX + img.getWidth(null) + separacion;
+    private void dibujarIndicadores(int cantidad, double posX, Image img,int espacio, double escala) {
+        double anchoReal = img.getWidth(null) * escala;        
+        double separacion = anchoReal + espacio;        
+        for (int i = 0; i < cantidad; i++) {
+            this.dibujar(this.entorno,img, posX+ (i * separacion), 50, escala);
 		}
     }
     //--------------------------------------------------------------------- Mapa
@@ -119,9 +119,9 @@ public class Juego extends InterfaceJuego {
         int islasEnMismaDireccion = 0; // Para contar cuántos escalones llevamos
 
         for (int i = 12; i < 30; i++) {
-            int anchoIsla = ThreadLocalRandom.current().nextInt(150, 220);            
-            int separacionX = ThreadLocalRandom.current().nextInt(40, 80);             
-            int variacionY = ThreadLocalRandom.current().nextInt(25, 60);            //diferencia de altura
+            int anchoIsla = ThreadLocalRandom.current().nextInt(130, 220);            
+            int separacionX = ThreadLocalRandom.current().nextInt(50, 90);             
+            int variacionY = ThreadLocalRandom.current().nextInt(30, 60);            //diferencia de altura
             int nuevoY = posYAnterior + (variacionY * direccionY);                   // Calculamos el nuevo Y aplicando la dirección
 
             if (nuevoY < 180) {                 // Si toca el techo virtual, la forzamos a bajar en la siguiente
@@ -140,8 +140,7 @@ public class Juego extends InterfaceJuego {
                 }
             }                    
             this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);
-            posX = posX + anchoIsla + separacionX;
-            
+            posX = posX + anchoIsla + separacionX;            
             if(posX > anchoFondo - 280) {            // Cortar si llegamos al final del mapa (Castillo)
                 return;
             }
@@ -385,9 +384,9 @@ public class Juego extends InterfaceJuego {
 					        this.ganar = 1; 
 					    }
 					}
-					this.dibujarIndicadores(this.princesa.getVidas(),50, this.imgCorazon, 2.5); 	//cantidad, x, img, escala
+					this.dibujarIndicadores(this.princesa.getVidas(),50, this.imgCorazon,5, 2.5); 	//cantidad, x, img, escala
 					
-					this.dibujarIndicadores(this.disparosEspeciales,700, this.imgAtaque, 0.1); 	//cantidad, x, img, escala	
+					this.dibujarIndicadores(this.disparosEspeciales,700, this.imgAtaque,10, 0.1); 	//cantidad, x, img, escala	
 									
 					//----------------------------------------------- Dibujar islas
 					for(int i = 0; i < this.islas.length; i++) {
