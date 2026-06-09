@@ -50,9 +50,9 @@ public class Jefe {
         if (enojado) {
             escala = 2;
         } else {
-            escala = 1;
+            escala = 0.8;
         }
-        entorno.dibujarImagen(frames[frameActual], x, y - 33, 0, escala);
+        entorno.dibujarImagen(frames[frameActual], x, y - 25, 0, escala);
     }
 
     public boolean debeDisparar() {

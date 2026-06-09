@@ -183,26 +183,24 @@ public class Princesa {
     	return mirandoDerecha;
     }
     
+    public void actualizarAnimacion() {
+        contadorAnimacion++;
+
+        if (contadorAnimacion >= 10) {
+            frameActual = (frameActual + 1) % 4;
+            contadorAnimacion = 0;
+        }
+    }
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;
-    	// animación
-		contadorAnimacion++;
-		if (contadorAnimacion >= 10) {
-			frameActual = (frameActual + 1) % 4;
-			contadorAnimacion = 0;
-		}
+    	actualizarAnimacion();
     }
     
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
     	this.mirandoDerecha = false;
-    	// animación
-		contadorAnimacion++;
-		if (contadorAnimacion >= 10) {
-			frameActual = (frameActual + 1) % 4;
-			contadorAnimacion = 0;
-		}
+    	actualizarAnimacion();
     }
     
     public void saltar() {					//méotodo de salto que modifica la velocidad vertical de la Princesa
