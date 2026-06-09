@@ -15,9 +15,13 @@ public class Juego extends InterfaceJuego {
 	private Enemigos[] enemigo;
 	private Poder poder;
 	private Castillo castillo; // Reemplazá el "private Image castillo;" por esto
+	private Jefe jefe;
 	private boolean tienePoder = false;
+	// Evita que el jefe se genere más de una vez
+	private boolean jefeInvocado = false;
 	boolean tocandoElPiso;
 	private int disparosEspeciales = 0;	
+	
 	private int ganar;
 	private int estadoActual;
     private ReproductorDeAudio reproductor; 
@@ -117,7 +121,7 @@ public class Juego extends InterfaceJuego {
                 this.islas[i].moverIslas(direccion);
             }
         }
-     //Movemos los enemigos junto con el mapa
+        //Movemos los enemigos junto con el mapa
         for (int i = 0; i < enemigo.length; i++) {
             if (enemigo[i] != null) {
                 enemigo[i].setX(enemigo[i].getX() + direccion); 
@@ -128,8 +132,11 @@ public class Juego extends InterfaceJuego {
         if (this.poder != null) {
             this.poder.setX(this.poder.getX() + direccion);
         }
-
-     // Movemos el castillo junto con el mapa
+        // Mueve al jefe junto con el mapa para que no quede fijo en pantalla
+        if (jefe != null) {
+            jefe.moverConMapa(direccion);
+        }	
+        // Movemos el castillo junto con el mapa
         if (this.castillo != null) {
         	this.castillo.mover(direccion);
         }
@@ -277,58 +284,136 @@ public class Juego extends InterfaceJuego {
 					}
 					
 					// ENEMIGOS Y DISPAROS---------------------------------------------------			
-				    for (int i = 0; i < enemigo.length; i++) {
-				        if (enemigo[i] != null) {
-				            if (!enemigo[i].getVaDerecha() ) {
-				                enemigo[i].setX(enemigo[i].getX() -3) ;
-				            }
-				            else if(enemigo[i].getVaDerecha()) {
-				                enemigo[i].setX(enemigo[i].getX() +3) ;
-				            }
-				        }
-				    }  
+					// Al hacer clic izquierdo se crea un disparo hacia el mouse
 					if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-						// Efecto de disparo solo si logra disparar
-					    if(princesa.getDisparo() == null) {
-					        Herramientas.play("music/disparo.wav");
-					    }
-					    princesa.disparar( entorno.mouseX(), entorno.mouseY(), tienePoder);
+					    princesa.disparar(entorno.mouseX(), entorno.mouseY(), tienePoder);
+
+					    // Si el poder está activo, consume un disparo especial
 					    if (tienePoder) {
 					        disparosEspeciales--;
+
+					        // Cuando se terminan los disparos especiales se pierde el poder
 					        if (disparosEspeciales <= 0) {
 					            tienePoder = false;
 					        }
 					    }
 					}
+
+					// Actualiza el movimiento y colisiones del disparo
 					princesa.actualizarDisparo(islas);
-				
-					// Mantener mínimo 3 enemigos
+					
+					// Si un disparo de la princesa golpea al jefe
+					if (jefe != null && princesa.getDisparo() != null && jefe.colisiona(princesa.getDisparo())) {
+
+					    // Si todavía no está enojado, entra en modo ataque
+					    if (!jefe.estaEnojado()) {
+					        jefe.enojarse(princesa);
+					    }
+
+					    // El disparo desaparece al impactar
+					    princesa.eliminarDisparo();
+					}
+
+					// ================= ENEMIGOS =================
+
+					// Cuenta cuántos enemigos siguen vivos
 					int vivos = 0;
 					for (int i = 0; i < enemigo.length; i++) {
-						if (enemigo[i] != null) {
-							vivos++;
-						}
+					    if (enemigo[i] != null) {
+					        vivos++;
+					    }
 					}
-			
+
+					// Genera enemigos hasta mantener un mínimo de 3 en pantalla
 					while (vivos < 3) {
-						for (int i = 0; i < enemigo.length; i++) {
-							if (enemigo[i] == null) {
-								enemigo[i] = Enemigos.generarEnemigo(islas, princesa, enemigo);
-								vivos++;
-								break;
-							}
-						}
+					    for (int i = 0; i < enemigo.length; i++) {
+					        if (enemigo[i] == null) {
+					            enemigo[i] = Enemigos.generarEnemigo(islas, princesa, enemigo);
+					            vivos++;
+					            break;
+					        }
+					    }
 					}
 					
+					// Cuando se eliminan 10 enemigos aparece el jefe
+					if (!jefeInvocado && jefe == null && Enemigos.getEnemigosMuertos() >= 10) {
+
+					    // Se genera sobre una isla específica
+					    Isla isla = islas[12];
+
+					    jefe = new Jefe( isla.getX(), isla.getY() - isla.getAlto()/2 - 10);
+
+					    // Marca que ya fue invocado
+					    jefeInvocado = true;
+					}
+					
+
+					// ================= PODER =================
+
+					// Verifica si existe un poder activo en el mapa
 					if (poder != null) {
-						poder.setY(poder.getY()+1);
+
+					    // Indica si el poder está apoyado sobre alguna isla
+					    boolean apoyado = false;
+
+					    // Recorre todas las islas del mapa
+					    for (int i = 0; i < islas.length; i++) {
+
+					        if (islas[i] != null) {
+
+					            // Comprueba si la posición horizontal del poder
+					            // está dentro de los límites de la isla
+					            boolean dentroDelAncho = poder.getX() >= islas[i].getX() - islas[i].getAncho()/2 && poder.getX() <= islas[i].getX() + islas[i].getAncho()/2;
+
+					            // Calcula la posición superior de la isla donde
+					            // debería quedar apoyado el poder
+					            double techoIsla = islas[i].getY() - islas[i].getAlto()/2 - 20; // Mitad aproximada del tamaño del poder
+
+					            // Si el poder está sobre la isla y llegó a su superficie
+					            if (dentroDelAncho && poder.getY() >= techoIsla) {
+
+					                // Lo coloca exactamente sobre la isla
+					                poder.setY(techoIsla);
+
+					                // Marca que ya encontró apoyo
+					                apoyado = true;
+
+					                // Sale del recorrido porque no necesita seguir buscando
+					                break;
+					            }
+					        }
+					    }
+
+					    // Si no encontró ninguna isla debajo, continúa cayendo
+					    if (!apoyado) {
+					        poder.setY(poder.getY() + 1);
+					    }
+
+					    // Si cae fuera del mapa, se elimina para permitir
+					    // que pueda aparecer otro poder más adelante
+					    if (poder != null && poder.getY() > 550) {
+					        poder = null;
+					    }
 					}
-					
+
+					// Si la princesa toca el poder
 					if (poder != null && poder.colisionaConPrincesa(princesa)) {
+
+						 if (poder.getTipo() == 0) {
+						    // Activa los disparos especiales
 						    tienePoder = true;
+			
+						    // Otorga 3 disparos especiales
 						    disparosEspeciales = 3;
-						    poder = null;
-						}
+						    
+					     } else {
+						        // Vida extra
+						        princesa.setVidas(princesa.getVidas() + 1);
+						    }
+
+					    // Elimina el poder del mapa porque ya fue recogido
+					    poder = null;
+					}
 					
 					//DIBUJAR TODO-----------------------------------------------------------
 					this.dibujar(this.entorno, this.fondo,this.xMapa, this.yMapa, 0.8);		//fondo
@@ -355,28 +440,79 @@ public class Juego extends InterfaceJuego {
 					        enemigo[i].mover(islas);
 					        enemigo[i].dibujar(entorno);
 
-					        // COLISION DISPARO
+					        // ===== COLISIÓN DISPARO - ENEMIGO =====
 					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
-					        	    if (poder == null && !tienePoder) {
-					        	        poder = enemigo[i].generarPoder();
-					        	    }
-					        	    enemigo[i] = null;
+					            // Puede generar un poder al morir
+					            Poder nuevoPoder = enemigo[i].generarPoder();					     
+					            if (nuevoPoder != null && poder == null && !tienePoder) { 	// Solo aparece un poder si no existe otro activo
+					                poder = nuevoPoder;
+					            }
+
+					            // Si el disparo es especial activa la explosión
+					            if (princesa.getDisparo().esEspecial()) {
+					                enemigo[i].explotar();
+					            } else {					                
+					                enemigo[i] = null;				// Disparo normal: elimina al enemigo inmediatamente
+					            }
+					            // El disparo desaparece tras impactar
 					        	    princesa.eliminarDisparo();
 					        	    continue;
-					        	}			        
-					        //COLISION PRINCSA
-					        if (enemigo[i].colisionaConPrincesa(princesa)) {
-					            princesa.setVidas(princesa.getVidas() - 1);
-					            enemigo[i] = null;
+					        	}
+					        
+					        // ===== COLISIÓN ENEMIGO - PRINCESA =====					        				        
+
+					        if (enemigo[i].colisionaConPrincesa(princesa)) {					            
+					            princesa.setVidas(princesa.getVidas() - 1);		// La princesa pierde una vida					            
+					            enemigo[i] = null;								// El enemigo desaparece
 					            continue;
 					        }
-					        // FUERA DE PANTALLA
+
+					        // Elimina enemigos que salen de la pantalla
 					        if (enemigo[i].fueraDePantalla()) {
+					            enemigo[i] = null;
+					        }
+					        // Elimina enemigos cuya animación de explosión terminó
+					        if (enemigo[i] != null && enemigo[i].explosionTerminada()) {
 					            enemigo[i] = null;
 					        }
 					    }
 					}
-					
+					// ================= JEFE FINAL =================
+					if (jefe != null) {
+					    jefe.actualizar();					   
+					    if (!jefe.estaEnojado()) {			// Mientras esté tranquilo sigue a la princesa
+					        jefe.seguirPrincesa(princesa, islas);
+					        jefe.verificarSalto(islas);
+					        // Evita quedar fuera del mapa reapareciendo
+					        jefe.reaparecer(islas, princesa);
+					    }
+					    // Si recibe un disparo pasa al modo enojado
+					    if (!jefe.estaEnojado() && princesa.getDisparo() != null && jefe.colisiona(princesa.getDisparo())) {
+					        jefe.enojarse(princesa);
+
+					        // El disparo desaparece tras el impacto
+					        princesa.eliminarDisparo();
+					    }
+
+					    // ================= DISPAROS DEL JEFE =================
+					    if (jefe.estaEnojado()) {					        
+					        jefe.generarDisparos();			// Genera nuevos disparos periódicamente
+					        // Actualiza movimiento y colisiones de los disparos
+					        jefe.actualizarDisparos(islas);
+					        // Si un disparo impacta a la princesa pierde una vida
+					        if (jefe.colisionDisparoPrincesa(princesa)) {
+					            princesa.setVidas(princesa.getVidas() - 1);
+					        }
+					    }
+
+					    jefe.dibujar(entorno);
+					    jefe.dibujarDisparos(entorno);
+					    // Elimina la referencia cuando termina su ciclo de vida
+					    if (jefe.desaparecio()) {
+					        jefe = null;
+					    }
+					}
+					// Dibuja el poder si existe uno activo en el mapa
 					if (poder != null) {
 					    poder.dibujar(entorno);
 					}
