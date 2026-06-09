@@ -1,7 +1,5 @@
 package juego;
 import java.awt.Image;
-import java.awt.Rectangle;
-
 import entorno.Entorno;
 import entorno.Herramientas;
 
@@ -13,12 +11,13 @@ public class Princesa {
     // Animación
  	private Image[] framesIzquierda;
  	private Image[] framesDerecha;
- 	
- // Referencia al disparo actual de la princesa
- 	private Disparo disparo;
-
  	private int frameActual;
  	private int contadorAnimacion;
+ 	
+    //Referencia al disparo actual de la princesa
+ 	private Disparo disparo;
+
+ 	//salto
  	private boolean tocandoElSuelo;
  	private double gravedad;
  	private double velocidadY;
@@ -141,7 +140,7 @@ public class Princesa {
 		this.y += cantidad;
 	}
 
-    //metodos
+    //-------- metodos ---------
 	public boolean paradaSobreIsla(Isla isla) {
         double misPies = this.y + (this.alto / 2);
         double techoIsla = isla.getY() - (isla.getAlto() / 2);
@@ -216,10 +215,12 @@ public class Princesa {
         return alineadaEnY && cruzandoPared;
     }
     
+    //bandera para saber hacia donde mira la princesa
     public boolean estaMirandoDerecha() {
     	return mirandoDerecha;
     }
     
+    //metodo para moverse que actualiza la animacion
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;
@@ -231,6 +232,7 @@ public class Princesa {
 		}
     }
     
+    //metodo para moverse que actualiza la animacion
     public void moverseIzquierda() {
     	this.x -=this.velocidad ;
     	this.mirandoDerecha = false;
@@ -242,6 +244,8 @@ public class Princesa {
 		}
     }
     
+    
+    //méotodo de salto que modifica la velocidad vertical de la Princesa
     public void saltar() {
     	if(tocandoElSuelo) {
     		this.velocidadY = potenciaSalto;
@@ -249,6 +253,7 @@ public class Princesa {
     		}
     }
     
+    //método que modifica gradualmente la fisica del salto para hacerlo fluido
     public void modificarFisica() {
     	if(!tocandoElSuelo) {
     		this.y += this.velocidadY;
@@ -260,6 +265,8 @@ public class Princesa {
     	
     }
     
+    
+    //le da gravedad a la princesa
     public void moverseAbajo() {
     	this.y+=this.gravedad;
     }
@@ -314,7 +321,9 @@ public class Princesa {
 	public void eliminarDisparo() {
 	    disparo = null;
 	}
-    
+	
+	
+	//dibuja a la princesa con un pequeño ajuste para arreglar la superposición de la imagen con el suelo
     public void dibujarse (Entorno e) {
     	Image imagenActual;
 		if (this.mirandoDerecha) {
