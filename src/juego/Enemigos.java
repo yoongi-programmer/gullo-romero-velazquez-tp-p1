@@ -8,21 +8,35 @@ import java.util.Random;
 import java.awt.Rectangle;
 
 public class Enemigos {
+
+	// Posición del enemigo
 	private double x;
 	private double y;
+
+	// Velocidad de movimiento
 	private double velocidad;
+
+	// Indica si el enemigo se mueve hacia la derecha
 	private boolean vaDerecha;
+
+	// Tamaño del enemigo
 	private int ancho = 30;
 	private int alto = 30;
+
 	// Contador compartido por todos los enemigos para saber cuántos fueron eliminados
 	private static int enemigosMuertos = 0;
+
 	// Imágenes para la animación
 	private Image[] framesIzquierda;
 	private Image[] framesDerecha;
+
+	// Control de animación
 	private int frameActual;
 	private int contadorAnimacion;
+
 	//indica si el enemigo murio
 	private boolean explotando = false;
+
 	// Control de animación e imgenes de explosion
 	private Image[] explosionFrames;
 	private int explosionFrame;

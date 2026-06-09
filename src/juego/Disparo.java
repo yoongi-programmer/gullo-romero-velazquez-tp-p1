@@ -5,21 +5,32 @@ import entorno.Herramientas;
 import java.awt.Image;
 
 public class Disparo {
+
+    // Posición actual del disparo
     private double x, y;
+
     // Velocidad horizontal y vertical
     private double velocidadX, velocidadY;
+
+    // Tamaño del disparo
     private double diametro = 20;
+    
     private double angulo;
 
     // Imagen del disparo normal
     private Image imagen;
+
+    // Frames para la animación del disparo especial
     private Image[] frames;
 
     // Variables para controlar la animación
     private int frameActual;
     private int contadorAnimacion;
+
+    // Indica si el disparo es especial o normal
     private boolean especial;
-    
+
+    // Constructor
     public Disparo(double x, double y, double destinoX, double destinoY, boolean especial) {
 
         // Guarda la posición inicial

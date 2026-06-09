@@ -6,21 +6,30 @@ import entorno.Herramientas;
 
 public class DisparoJefe {
 
-	private double x;
+    // Posición actual del disparo
+    private double x;
     private double y;
+
     // Velocidad de caída del disparo
     private double velocidad = 4;
+
     // Frames de la animación del fuego
     private Image[] frames;
+
     // Control de la animación
     private int frameActual;
     private int contadorAnimacion;
 
+    // Constructor del disparo del jefe
     public DisparoJefe(double x, double y) {
+
+        // Guarda la posición inicial
         this.x = x;
         this.y = y;
+
         // Crea el arreglo para almacenar los frames
         frames = new Image[3];
+
         // Carga las imágenes de la animación
         frames[0] = Herramientas.cargarImagen("img/fuego1.png");
         frames[1] = Herramientas.cargarImagen("img/fuego2.png");
@@ -33,6 +42,8 @@ public class DisparoJefe {
 
     // Actualiza la posición y la animación del disparo
     public void mover() {
+
+        // Hace descender el disparo
         y += velocidad;
 
         // Incrementa el contador de animación
