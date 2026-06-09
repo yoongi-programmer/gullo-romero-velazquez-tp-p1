@@ -255,7 +255,7 @@ public class Juego extends InterfaceJuego {
 					        if (this.xMapa + (anchoFondo / 2) > 1000) {
 					            moverMapa(-2);
 					            this.princesa.setMirandoDerecha(true);
-					            princesa.actualizarAnimacion();
+					            princesa.actualizarAnimacion();   //actualiza las animaciones de la princesa hacia la derecha
 					        } else if (this.princesa.getX() < 1000) {
 					            this.princesa.moverseDerecha();
 					        }
@@ -270,7 +270,7 @@ public class Juego extends InterfaceJuego {
 					        if (this.xMapa - (anchoFondo / 2) < 0) {
 					            moverMapa(2);
 					            this.princesa.setMirandoDerecha(false);
-					            princesa.actualizarAnimacion();
+					            princesa.actualizarAnimacion();  //actualiza las animaciones de la princesa hacia la izquierda
 					        } else if (this.princesa.getX() > 0) {
 					            this.princesa.moverseIzquierda();
 					        }
