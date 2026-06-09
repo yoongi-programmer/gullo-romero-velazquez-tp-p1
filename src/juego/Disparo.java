@@ -43,10 +43,10 @@ public class Disparo {
         // Guarda si el disparo es especial
         this.especial = especial;
 
-        // Calcula el ángulo entre el origen y el destino
+        // Calcula el ángulo de inclinacion entre el origen y el destino
         this.angulo = Math.atan2(destinoY - y, destinoX - x);
 
-        // Calcula la velocidad en X e Y según el ángulo
+        // Calcula la velocidad en X e Y según el ángulo.  viaja a 8 pixeles por fotograma
         velocidadX = Math.cos(this.angulo) * 8;
         velocidadY = Math.sin(this.angulo) * 8;
 

@@ -207,7 +207,7 @@ public class Princesa {
     	if(tocandoElSuelo) {
     		this.velocidadY = potenciaSalto;
     		this.tocandoElSuelo = false;
-    		}
+    	}
     }
     
     public void modificarFisica() {			//método que modifica gradualmente la fisica del salto para hacerlo fluido
