@@ -30,6 +30,7 @@ public class Juego extends InterfaceJuego {
 	private Image imgPerder;
 	private Image imgPausa;
 	private Image imgCorazon;
+	private Image imgAtaque;
 	
 	private final int ESTADO_MENU =0;
 	private final int ESTADO_JUGANDO = 1;
@@ -52,6 +53,7 @@ public class Juego extends InterfaceJuego {
 		this.imgGanar = Herramientas.cargarImagen("img/ganar.png");
 		this.imgPerder = Herramientas.cargarImagen("img/perder.png");
 		this.imgCorazon = Herramientas.cargarImagen("img/corazon.png");
+		this.imgAtaque = Herramientas.cargarImagen("img/ataque.png");
 		this.estadoActual = ESTADO_MENU;
 		this.reproductor = new ReproductorDeAudio();
 		this.entorno.iniciar(); // Inicia el juego!
@@ -76,15 +78,29 @@ public class Juego extends InterfaceJuego {
             this.musicaPausaSonando = false; 
         }
     }
-    
-    //--------------------------------------------------------------------- Mapa
-    private void dibujarCorazones() {
-    	int posX = 50;
+    private void dibujarIndicadores(int cantidad, int posX, Image img, double escala) {
     	int separacion = 20;
-		for(int x =0; x<this.princesa.getVidas(); x++) {
-			this.dibujar(this.entorno, this.imgCorazon, posX, 50, 2.5);		//fondo
-			posX = posX + this.imgCorazon.getWidth(null) + separacion;
+		for(int x =0; x<cantidad; x++) {
+			this.dibujar(this.entorno, img, posX, 50, escala);		//entorno, imagen, x, y, escala
+			posX = posX + img.getWidth(null) + separacion;
 		}
+    }
+    //--------------------------------------------------------------------- Mapa
+    public void reiniciarJuego() {
+    	this.ganar = 0;
+    	this.tienePoder = false;
+    	this.disparosEspeciales = 0;
+    	this.poder = null;
+		this.islas = new Isla[30];
+		this.enemigo = new Enemigos[10];
+		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
+        double anchoFondo = this.fondo.getWidth(null) * 0.7;
+        this.castillo = new Castillo(anchoFondo - 100, 360);
+		this.xMapa = anchoFondo / 2;
+		this.yMapa = 250;
+		this.jefeInvocado = false;
+		inicializarPiso();
+		generarIslasFlotantes();
     }
     private void inicializarPiso() {
 		int posX = 180;
@@ -96,27 +112,41 @@ public class Juego extends InterfaceJuego {
 		} 			
 	}
     private void generarIslasFlotantes() {
-    	int posX=500;
-    	int posYAnterior = 320;
-    	double anchoFondo = this.fondo.getWidth(null) * 0.7;
-    	for (int i = 12; i < 30; i++) {
-        	int anchoIsla = ThreadLocalRandom.current().nextInt(150, 250);
-        	int variacionY = ThreadLocalRandom.current().nextInt(-100, 80);
-        	int separacionX = ThreadLocalRandom.current().nextInt(80, 120);
-        	int nuevoY = posYAnterior + variacionY;        	
-        	if (nuevoY < 200) {		//si supera el alto maximo
-                nuevoY = 200;
+        int posX = 500;
+        int posYAnterior = 320;
+        double anchoFondo = this.fondo.getWidth(null) * 0.7;        
+        int direccionY = -1; // -1 significa que la próxima isla irá hacia arriba, 1 hacia abajo
+        int islasEnMismaDireccion = 0; // Para contar cuántos escalones llevamos
+
+        for (int i = 12; i < 30; i++) {
+            int anchoIsla = ThreadLocalRandom.current().nextInt(150, 220);            
+            int separacionX = ThreadLocalRandom.current().nextInt(40, 80);             
+            int variacionY = ThreadLocalRandom.current().nextInt(25, 60);            //diferencia de altura
+            int nuevoY = posYAnterior + (variacionY * direccionY);                   // Calculamos el nuevo Y aplicando la dirección
+
+            if (nuevoY < 180) {                 // Si toca el techo virtual, la forzamos a bajar en la siguiente
+                nuevoY = 180;
+                direccionY = 1; 
+                islasEnMismaDireccion = 0;
+            } else if (nuevoY > 360) {                 // Si baja mucho, la forzamos a subir para que no estorbe los huecos del piso
+                nuevoY = 360;
+                direccionY = -1; 
+                islasEnMismaDireccion = 0;
+            } else {
+                islasEnMismaDireccion++;                // Para hacer el zigzag: si ya hicimos 2 escalones, o si toca al azar, cambiamos de dirección
+                if (islasEnMismaDireccion >= 2 || ThreadLocalRandom.current().nextBoolean()) {
+                    direccionY *= -1; // Invertimos la dirección (de 1 a -1, o de -1 a 1)
+                    islasEnMismaDireccion = 0;
+                }
+            }                    
+            this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);
+            posX = posX + anchoIsla + separacionX;
+            
+            if(posX > anchoFondo - 280) {            // Cortar si llegamos al final del mapa (Castillo)
+                return;
             }
-            if (nuevoY > 390) {		//fijo el alto minimo
-                nuevoY = 390;
-            }          
-			this.islas[i] = new Isla(posX, nuevoY, anchoIsla, 35);	//x, y, ancho, alto
-			posX = posX + anchoIsla + separacionX; // sumando el ancho de la isla que acabamos de crear + el hueco
-			if(posX>anchoFondo-250) {
-				return;
-			}
-			posYAnterior = nuevoY;
-		}
+            posYAnterior = nuevoY;
+        }
     }
     public void moverMapa(double direccion) {
         for (int i = 0; i < this.islas.length; i++) {
@@ -142,23 +172,6 @@ public class Juego extends InterfaceJuego {
         	this.castillo.mover(direccion);
         }        
         this.xMapa+=direccion; 								//Muevo el fondo tambien
-    }
-    
-	public void reiniciarJuego() {
-    	this.ganar = 0;
-    	this.tienePoder = false;
-    	this.disparosEspeciales = 0;
-    	this.poder = null;
-		this.islas = new Isla[30];
-		this.enemigo = new Enemigos[10];
-		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
-        double anchoFondo = this.fondo.getWidth(null) * 0.7;
-        this.castillo = new Castillo(anchoFondo - 100, 360);
-		this.xMapa = anchoFondo / 2;
-		this.yMapa = 250;
-		this.jefeInvocado = false;
-		inicializarPiso();
-		generarIslasFlotantes();
     }
     //--------------------------------------------------------------------- Estado interno del juego
 	public void tick() {
@@ -356,7 +369,7 @@ public class Juego extends InterfaceJuego {
 					if (poder != null && poder.colisionaConPrincesa(princesa)) {					// Si la princesa toca el poder
 						 if (poder.getTipo() == 0) {						    
 						    tienePoder = true;									    
-						    disparosEspeciales = 3;		// Otorga 3 disparos especiales						   
+						    disparosEspeciales = 5;		// Otorga 3 disparos especiales						   
 					     } else {						        
 						        princesa.setVidas(princesa.getVidas() + 1);
 						 }
@@ -372,7 +385,10 @@ public class Juego extends InterfaceJuego {
 					        this.ganar = 1; 
 					    }
 					}
-					this.dibujarCorazones();
+					this.dibujarIndicadores(this.princesa.getVidas(),50, this.imgCorazon, 2.5); 	//cantidad, x, img, escala
+					
+					this.dibujarIndicadores(this.disparosEspeciales,700, this.imgAtaque, 0.1); 	//cantidad, x, img, escala	
+									
 					//----------------------------------------------- Dibujar islas
 					for(int i = 0; i < this.islas.length; i++) {
 						if(this.islas[i] != null) {
