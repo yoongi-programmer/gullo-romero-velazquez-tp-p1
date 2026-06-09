@@ -183,6 +183,14 @@ public class Princesa {
     	return mirandoDerecha;
     }
     
+    public void actualizarAnimacion() {
+        contadorAnimacion++;
+
+        if (contadorAnimacion >= 10) {
+            frameActual = (frameActual + 1) % 4;
+            contadorAnimacion = 0;
+        }
+    }
     public void moverseDerecha() {
     	this.x += this.velocidad;
     	this.mirandoDerecha = true;

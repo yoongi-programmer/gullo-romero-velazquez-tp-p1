@@ -31,9 +31,11 @@ public class Enemigos {
 		this.velocidad = 0.8;
 		framesIzquierda = new Image[3];
 		framesDerecha = new Image[3];
+		
 		framesIzquierda[0] = Herramientas.cargarImagen("img/enemigo1_IZ.png");		// Carga de sprites mirando a la izquierda
 		framesIzquierda[1] = Herramientas.cargarImagen("img/enemigo2_IZ.png");
 		framesIzquierda[2] = Herramientas.cargarImagen("img/enemigo3_IZ.png");
+		
 		framesDerecha[0] = Herramientas.cargarImagen("img/enemigo1_DE.png");		// Carga de sprites mirando a la derecha
 		framesDerecha[1] = Herramientas.cargarImagen("img/enemigo2_DE.png");
 		framesDerecha[2] = Herramientas.cargarImagen("img/enemigo3_DE.png");
@@ -41,6 +43,7 @@ public class Enemigos {
 		frameActual = 0;
 		contadorAnimacion = 0;		
 		explosionFrames = new Image[4];
+		
 		explosionFrames[0] = Herramientas.cargarImagen("img/explosion1.png");
 		explosionFrames[1] = Herramientas.cargarImagen("img/explosion2.png");
 		explosionFrames[2] = Herramientas.cargarImagen("img/explosion3.png");
@@ -100,8 +103,7 @@ public class Enemigos {
         if (contadorAnimacion >= 10) {        		// Cada 10 ciclos cambia la imagen.           
             frameActual = (frameActual + 1) % 3;	// Avanza al siguiente frame. El % 3 hace que vuelva a empezar al llegar al último.
             contadorAnimacion = 0;
-        }
-        
+        } 
 	}
 
 	public void moverConMapa(double direccion) {
@@ -170,6 +172,10 @@ public class Enemigos {
 	
 	public static int getEnemigosMuertos() {
 	    return enemigosMuertos;
+	}
+	
+	public static void reiniciarContador() {
+	    enemigosMuertos = 0;
 	}
 
 	//--------- Getters ----------------

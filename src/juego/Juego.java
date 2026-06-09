@@ -135,9 +135,7 @@ public class Juego extends InterfaceJuego {
         if (this.poder != null) {							//Movemos el orbe de poder con el mapa
             this.poder.setX(this.poder.getX() + direccion);
         }
-        if (jefe != null) {				        			// Mueve al jefe junto con el mapa 
-            jefe.moverConMapa(direccion);
-        }	
+
         if (this.castillo != null) {				        // Movemos el castillo junto con el mapa
         	this.castillo.mover(direccion);
         }        
@@ -149,6 +147,9 @@ public class Juego extends InterfaceJuego {
     	this.tienePoder = false;
     	this.disparosEspeciales = 0;
     	this.poder = null;
+    	this.jefe = null;
+        this.jefeInvocado = false;
+        Enemigos.reiniciarContador();
 		this.islas = new Isla[30];
 		this.enemigo = new Enemigos[10];
 		this.princesa = new Princesa (500 , 400, 25, 35,2, 5); // (coord X, coord Y, ancho, alto, velocidad, vidas, altura de salto)  
@@ -254,6 +255,7 @@ public class Juego extends InterfaceJuego {
 					        if (this.xMapa + (anchoFondo / 2) > 1000) {
 					            moverMapa(-2);
 					            this.princesa.setMirandoDerecha(true);
+					            princesa.actualizarAnimacion();
 					        } else if (this.princesa.getX() < 1000) {
 					            this.princesa.moverseDerecha();
 					        }
@@ -268,6 +270,7 @@ public class Juego extends InterfaceJuego {
 					        if (this.xMapa - (anchoFondo / 2) < 0) {
 					            moverMapa(2);
 					            this.princesa.setMirandoDerecha(false);
+					            princesa.actualizarAnimacion();
 					        } else if (this.princesa.getX() > 0) {
 					            this.princesa.moverseIzquierda();
 					        }
@@ -328,28 +331,29 @@ public class Juego extends InterfaceJuego {
 					    jefeInvocado = true;			
 					}
 
-					if (poder != null) {					// Verifica si existe un poder activo en el mapa				
-					    boolean apoyado = false;		
+					if (poder != null) {     // Verifica si existe un poder activo en el mapa			
+					    boolean apoyado = false;
 					    for (int i = 0; i < islas.length; i++) {
-					        if (islas[i] != null) {
-					            // Comprueba si la posición horizontal del poder está dentro de los límites de la isla
-					            boolean dentroDelAncho = poder.getX() >= islas[i].getX() - islas[i].getAncho()/2 && poder.getX() <= islas[i].getX() + islas[i].getAncho()/2;
-					            // Calcula la posición superior de la isla donde debería quedar apoyado el poder
-					            double techoIsla = islas[i].getY() - islas[i].getAlto()/2 - 20; // Mitad aproximada del tamaño del poder
-					            // Si el poder está sobre la isla y llegó a su superficie
-					            if (dentroDelAncho && poder.getY() >= techoIsla) {					                
-					                poder.setY(techoIsla);				// Lo coloca exactamente sobre la isla					               
-					                apoyado = true;						// Marca que ya encontró apoyo
-					                break;
-					            }
+					        if (islas[i] == null) {  // Comprueba si la posición horizontal del poder está dentro de los límites de la isla
+					            continue;
+					         }
+					        
+					        // Calcula la posición superior de la isla donde debería quedar apoyado el poder
+					        boolean dentroDelAncho = poder.getX() >= islas[i].getX() - islas[i].getAncho()/2 && poder.getX() <= islas[i].getX() + islas[i].getAncho()/2;
+					        double techoIsla = islas[i].getY() - islas[i].getAlto()/2 - 20;  // Mitad aproximada del tamaño del poder
+					        
+					        // El orbe está cayendo y toca la isla
+					        if (dentroDelAncho && poder.getY() >= techoIsla && poder.getY() <= techoIsla + 5) {
+					            poder.setY(techoIsla);  // Lo coloca exactamente sobre la isla					       
+					            apoyado = true;   // Marca que ya encontró apoyo
+					            break;
 					        }
 					    }
-
-					    if (!apoyado) {					    // Si no encontró ninguna isla debajo, continúa cayendo
+					    if (!apoyado) {    // Si no encontró ninguna isla debajo, continúa cayendo
 					        poder.setY(poder.getY() + 1);
 					    }
-					    if (poder != null && poder.getY() > 550) {
-					        poder = null;					    // Si cae fuera del mapa, se elimina para permitir que pueda aparecer otro poder más adelante
+					    if (poder.getY() > 550) {   // Si cae fuera del mapa, se elimina para permitir que pueda aparecer otro poder más adelante
+					        poder = null;
 					    }
 					}
 
@@ -358,7 +362,9 @@ public class Juego extends InterfaceJuego {
 						    tienePoder = true;									    
 						    disparosEspeciales = 3;		// Otorga 3 disparos especiales						   
 					     } else {						        
-						        princesa.setVidas(princesa.getVidas() + 1);
+						    	 if (princesa.getVidas() < 5) {
+						    		    princesa.setVidas(princesa.getVidas() + 1);
+						    		}
 						 }
 					    poder = null;					    // Elimina el poder del mapa porque ya fue recogido
 					}
@@ -393,7 +399,8 @@ public class Juego extends InterfaceJuego {
 					        if (princesa.getDisparo() != null && enemigo[i].colisionDisparoEnemigo(princesa.getDisparo())) {
 					        	Herramientas.play("music/disparo2.wav");
 					            Poder nuevoPoder = enemigo[i].generarPoder();				// Puede generar un poder al morir
-					            if (nuevoPoder != null && poder == null && !tienePoder) { 	// Solo aparece un poder si no existe otro activo
+					            
+					            if (nuevoPoder != null && poder == null) { 	// Solo aparece un poder si no existe otro activo
 					                poder = nuevoPoder;
 					            }
 					            if (princesa.getDisparo().esEspecial()) {
